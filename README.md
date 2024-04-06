@@ -1,2 +1,3 @@
 # hoyo-codes
- API to get redemption codes from Hoyoverse games.
+
+ API to get gift codes from Hoyoverse games.
