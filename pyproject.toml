@@ -16,6 +16,7 @@ fastapi = "^0.110.1"
 python = "^3.9"
 uvicorn = "^0.29.0"
 lxml = "^5.2.1"
+fake-useragent = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
