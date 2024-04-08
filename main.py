@@ -3,19 +3,29 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import sys
 from enum import Enum
 
 import aiohttp
+import fake_useragent
 from bs4 import BeautifulSoup, Tag
 from fastapi import FastAPI, Response
 
 app = FastAPI()
-LOGGER_ = logging.getLogger(__name__)
+ua = fake_useragent.UserAgent()
+
+LOGGER_ = logging.getLogger("main")
+LOGGER_.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(sys.stdout)
+log_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+stream_handler.setFormatter(log_formatter)
+LOGGER_.addHandler(stream_handler)
 
 
 class Game(Enum):
     GENSHIN = "genshin"
     STARRAIL = "starrail"
+    HONKAI = "honkai"
 
 
 class Source(Enum):
@@ -34,6 +44,10 @@ CODE_URLS: dict[Game, dict[Source, str]] = {
         Source.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
         Source.PROGAMEGUIDES: "https://progameguides.com/honkai-star-rail/honkai-star-rail-codes/",
         Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
+    },
+    Game.HONKAI: {
+        Source.PROGAMEGUIDES: "https://progameguides.com/honkai-impact-3/honkai-impact-3-codes/",
+        Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
     },
 }
 
@@ -66,10 +80,12 @@ async def parse_progameguides_codes(
         # find div with class wp-block-gamurs-article-content
         div = soup.find("div", class_="wp-block-gamurs-article-content")
         if div is None:
+            LOGGER_.error("[Progame Guides] Could not find div with class wp-block-gamurs-article-content")
             return
         # find ul inside div
         ul = div.find("ul")
         if not isinstance(ul, Tag):
+            LOGGER_.error("[Progame Guides] Could not find ul inside div with class wp-block-gamurs-article-content")
             return
         # find lis inside ul
         lis = ul.find_all("li")
@@ -78,25 +94,35 @@ async def parse_progameguides_codes(
                 continue
             codes.add(li.strong.text.strip())
     except Exception:
-        LOGGER_.exception("Error in get_code_from_progameguides")
+        LOGGER_.exception("[Progame Guides] Error parsing codes")
 
 
 async def parse_pockettactics_codes(
     session: aiohttp.ClientSession, codes: set[str], url: str
 ) -> None:
     try:
-        async with session.get(url) as response:
+        async with session.get(url, headers={"User-Agent": ua.random}) as response:
             html = await response.text()
 
         soup = BeautifulSoup(html, "lxml")
-        entries = soup.select("div.entry-content > ul > li:not(:has(a)) > strong:not(:has(a))")
-
-        for entry in entries:
-            code = entry.get_text().strip()
-            if code and code == code.upper():
-                codes.add(code)
+        # find div with class entry-content
+        div = soup.find("div", class_="entry-content")
+        if div is None:
+            LOGGER_.error("[Pocket Tactics] Could not find div with class entry-content")
+            return
+        # find first ul inside div
+        ul = div.find("ul")
+        if not isinstance(ul, Tag):
+            LOGGER_.error("[Pocket Tactics] Could not find ul inside div with class entry-content")
+            return
+        # find lis inside ul
+        lis = ul.find_all("li")
+        for li in lis:
+            if li.strong is None or not li.strong.text.strip().isupper():
+                continue
+            codes.add(li.strong.text.strip())
     except Exception:
-        LOGGER_.exception("Error in get_code_from_pockettactics")
+        LOGGER_.exception("[Pocket Tactics] Error parsing codes")
 
 
 @app.get("/")
@@ -111,12 +137,15 @@ async def get_codes(game: Game) -> Response:
 
     async with aiohttp.ClientSession() as session:
         for source in Source:
-            url = CODE_URLS[game][source]
-            if source == Source.GAMESRADAR:
+            url = CODE_URLS[game].get(source)
+            if url is None:
+                continue
+
+            if source is Source.GAMESRADAR:
                 tasks.append(parse_gamesradar_codes(session, codes, url))
-            elif source == Source.PROGAMEGUIDES:
+            elif source is Source.PROGAMEGUIDES:
                 tasks.append(parse_progameguides_codes(session, codes, url))
-            elif source == Source.POCKETTACTICS:
+            elif source is Source.POCKETTACTICS:
                 tasks.append(parse_pockettactics_codes(session, codes, url))
         await asyncio.gather(*tasks)
     return Response(content=json.dumps(list(codes)))
