@@ -3,22 +3,44 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from enum import Enum
 
 import aiohttp
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from fastapi import FastAPI, Response
 
 app = FastAPI()
 LOGGER_ = logging.getLogger(__name__)
 
 
-async def get_code_from_gamesrader(
-    session: aiohttp.ClientSession, codes: set[str]
-) -> None:
+class Game(Enum):
+    GENSHIN = "genshin"
+    STARRAIL = "starrail"
+
+
+class Source(Enum):
+    GAMESRADAR = "gamesradar"
+    PROGAMEGUIDES = "progameguides"
+    POCKETTACTICS = "pockettactics"
+
+
+CODE_URLS: dict[Game, dict[Source, str]] = {
+    Game.GENSHIN: {
+        Source.GAMESRADAR: "https://www.gamesradar.com/genshin-impact-codes-redeem/",
+        Source.PROGAMEGUIDES: "https://progameguides.com/genshin-impact/genshin-impact-codes/",
+        Source.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
+    },
+    Game.STARRAIL: {
+        Source.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
+        Source.PROGAMEGUIDES: "https://progameguides.com/honkai-star-rail/honkai-star-rail-codes/",
+        Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
+    },
+}
+
+
+async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str], url: str) -> None:
     try:
-        async with session.get(
-            "https://www.gamesradar.com/genshin-impact-codes-redeem/"
-        ) as response:
+        async with session.get(url) as response:
             content = await response.text()
 
         soup = BeautifulSoup(content, "lxml")
@@ -33,18 +55,24 @@ async def get_code_from_gamesrader(
         LOGGER_.exception("Error in get_code_from_gamesrader")
 
 
-async def get_code_from_programguide(
-    session: aiohttp.ClientSession, codes: set[str]
+async def parse_progameguides_codes(
+    session: aiohttp.ClientSession, codes: set[str], url: str
 ) -> None:
     try:
-        async with session.get(
-            "https://progameguides.com/genshin-impact/genshin-impact-codes/"
-        ) as response:
+        async with session.get(url) as response:
             html = await response.text()
 
         soup = BeautifulSoup(html, "lxml")
-        lis = soup.select("div.entry-content li:not(:has(a)):has(strong)")
-
+        # find div with class wp-block-gamurs-article-content
+        div = soup.find("div", class_="wp-block-gamurs-article-content")
+        if div is None:
+            return
+        # find ul inside div
+        ul = div.find("ul")
+        if not isinstance(ul, Tag):
+            return
+        # find lis inside ul
+        lis = ul.find_all("li")
         for li in lis:
             if li.strong is None or not li.strong.text.strip().isupper():
                 continue
@@ -53,33 +81,15 @@ async def get_code_from_programguide(
         LOGGER_.exception("Error in get_code_from_progameguides")
 
 
-async def get_code_from_gipn(session: aiohttp.ClientSession, codes: set[str]) -> None:
-    async with session.get(
-        "https://raw.githubusercontent.com/ataraxyaffliction/gipn-json/main/gipn-update.json"
-    ) as response:
-        content = await response.text()
-        data = json.loads(content)
-
-    codes_ = data.get("set[str]", {})
-    for code in codes_:
-        if code.get("is_expired", False):
-            continue
-        codes.add(code["code"])
-
-
-async def get_code_from_pockettactics(
-    session: aiohttp.ClientSession, codes: set[str]
+async def parse_pockettactics_codes(
+    session: aiohttp.ClientSession, codes: set[str], url: str
 ) -> None:
     try:
-        async with session.get(
-            "https://www.pockettactics.com/genshin-impact/codes"
-        ) as response:
+        async with session.get(url) as response:
             html = await response.text()
 
         soup = BeautifulSoup(html, "lxml")
-        entries = soup.select(
-            "div.entry-content > ul > li:not(:has(a)) > strong:not(:has(a))"
-        )
+        entries = soup.select("div.entry-content > ul > li:not(:has(a)) > strong:not(:has(a))")
 
         for entry in entries:
             code = entry.get_text().strip()
@@ -91,18 +101,22 @@ async def get_code_from_pockettactics(
 
 @app.get("/")
 async def root() -> Response:
-    return Response(content="Hoyo Codes API v1.0.0")
+    return Response(content="Hoyo Codes API v1.1.0")
 
 
 @app.get("/codes")
-async def get_codes() -> Response:
+async def get_codes(game: Game) -> Response:
     codes: set[str] = set()
+    tasks = []
 
     async with aiohttp.ClientSession() as session:
-        tasks = [
-            get_code_from_pockettactics(session, codes),
-            get_code_from_programguide(session, codes),
-            get_code_from_gamesrader(session, codes),
-        ]
+        for source in Source:
+            url = CODE_URLS[game][source]
+            if source == Source.GAMESRADAR:
+                tasks.append(parse_gamesradar_codes(session, codes, url))
+            elif source == Source.PROGAMEGUIDES:
+                tasks.append(parse_progameguides_codes(session, codes, url))
+            elif source == Source.POCKETTACTICS:
+                tasks.append(parse_pockettactics_codes(session, codes, url))
         await asyncio.gather(*tasks)
     return Response(content=json.dumps(list(codes)))
