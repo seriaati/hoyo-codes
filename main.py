@@ -30,23 +30,19 @@ class Game(Enum):
 
 class Source(Enum):
     GAMESRADAR = "gamesradar"
-    PROGAMEGUIDES = "progameguides"
     POCKETTACTICS = "pockettactics"
 
 
 CODE_URLS: dict[Game, dict[Source, str]] = {
     Game.GENSHIN: {
         Source.GAMESRADAR: "https://www.gamesradar.com/genshin-impact-codes-redeem/",
-        Source.PROGAMEGUIDES: "https://progameguides.com/genshin-impact/genshin-impact-codes/",
         Source.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
     },
     Game.STARRAIL: {
         Source.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
-        Source.PROGAMEGUIDES: "https://progameguides.com/honkai-star-rail/honkai-star-rail-codes/",
         Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
     },
     Game.HONKAI: {
-        Source.PROGAMEGUIDES: "https://progameguides.com/honkai-impact-3/honkai-impact-3-codes/",
         Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
     },
 }
@@ -67,34 +63,6 @@ async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str]
             codes.add(li.text.strip())
     except Exception:
         LOGGER_.exception("Error in get_code_from_gamesrader")
-
-
-async def parse_progameguides_codes(
-    session: aiohttp.ClientSession, codes: set[str], url: str
-) -> None:
-    try:
-        async with session.get(url) as response:
-            html = await response.text()
-
-        soup = BeautifulSoup(html, "lxml")
-        # find div with class wp-block-gamurs-article-content
-        div = soup.find("div", class_="wp-block-gamurs-article-content")
-        if div is None:
-            LOGGER_.error("[Progame Guides] Could not find div with class wp-block-gamurs-article-content")
-            return
-        # find ul inside div
-        ul = div.find("ul")
-        if not isinstance(ul, Tag):
-            LOGGER_.error("[Progame Guides] Could not find ul inside div with class wp-block-gamurs-article-content")
-            return
-        # find lis inside ul
-        lis = ul.find_all("li")
-        for li in lis:
-            if li.strong is None or not li.strong.text.strip().isupper():
-                continue
-            codes.add(li.strong.text.strip())
-    except Exception:
-        LOGGER_.exception("[Progame Guides] Error parsing codes")
 
 
 async def parse_pockettactics_codes(
@@ -127,7 +95,7 @@ async def parse_pockettactics_codes(
 
 @app.get("/")
 async def root() -> Response:
-    return Response(content="Hoyo Codes API v1.1.0")
+    return Response(content="Hoyo Codes API v1.2.0")
 
 
 @app.get("/codes")
@@ -143,8 +111,6 @@ async def get_codes(game: Game) -> Response:
 
             if source is Source.GAMESRADAR:
                 tasks.append(parse_gamesradar_codes(session, codes, url))
-            elif source is Source.PROGAMEGUIDES:
-                tasks.append(parse_progameguides_codes(session, codes, url))
             elif source is Source.POCKETTACTICS:
                 tasks.append(parse_pockettactics_codes(session, codes, url))
         await asyncio.gather(*tasks)
