@@ -24,8 +24,8 @@ LOGGER_.addHandler(stream_handler)
 
 class Game(Enum):
     GENSHIN = "genshin"
-    STARRAIL = "starrail"
-    HONKAI = "honkai"
+    STARRAIL = "hkrpg"
+    HONKAI = "honkai3rd"
 
 
 class Source(Enum):
@@ -62,7 +62,7 @@ async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str]
                 continue
             codes.add(li.text.strip())
     except Exception:
-        LOGGER_.exception("Error in get_code_from_gamesrader")
+        LOGGER_.exception("[GamesRadar] Error parsing codes")
 
 
 async def parse_pockettactics_codes(
@@ -95,7 +95,7 @@ async def parse_pockettactics_codes(
 
 @app.get("/")
 async def root() -> Response:
-    return Response(content="Hoyo Codes API v1.2.0")
+    return Response(content="Hoyo Codes API v1.2.1")
 
 
 @app.get("/codes")
