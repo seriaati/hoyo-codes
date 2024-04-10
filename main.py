@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import sys
 from enum import Enum
@@ -10,6 +9,7 @@ import aiohttp
 import fake_useragent
 from bs4 import BeautifulSoup, Tag
 from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 ua = fake_useragent.UserAgent()
@@ -95,7 +95,7 @@ async def parse_pockettactics_codes(
 
 @app.get("/")
 async def root() -> Response:
-    return Response(content="Hoyo Codes API v1.2.1")
+    return JSONResponse(content={"message": "Hoyo Codes API v1.2.2"})
 
 
 @app.get("/codes")
@@ -114,4 +114,4 @@ async def get_codes(game: Game) -> Response:
             elif source is Source.POCKETTACTICS:
                 tasks.append(parse_pockettactics_codes(session, codes, url))
         await asyncio.gather(*tasks)
-    return Response(content=json.dumps(list(codes)))
+    return JSONResponse(content={"codes": list(codes)})
