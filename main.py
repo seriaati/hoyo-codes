@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
+
 from __future__ import annotations
 
 import asyncio
@@ -7,7 +9,7 @@ from enum import Enum
 
 import aiohttp
 import fake_useragent
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 
@@ -36,15 +38,19 @@ class Source(Enum):
 CODE_URLS: dict[Game, dict[Source, str]] = {
     Game.GENSHIN: {
         Source.GAMESRADAR: "https://www.gamesradar.com/genshin-impact-codes-redeem/",
-        Source.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
+        # Source.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
     },
     Game.STARRAIL: {
         Source.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
-        Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
+        # Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
     },
     Game.HONKAI: {
         Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
     },
+}
+CODE_H2_TEXTS: dict[Source, set[str]] = {
+    Source.GAMESRADAR: {"Genshin Impact active codes", "Honkai Star Rail codes"},
+    Source.POCKETTACTICS: {"Genshin Impact codes", "Honkai Star Rail codes"},
 }
 
 
@@ -54,13 +60,24 @@ async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str]
             content = await response.text()
 
         soup = BeautifulSoup(content, "lxml")
-        lis = soup.select(
-            ".article .text-copy b, .article .text-copy strong, .news-article .text-copy b, .news-article .text-copy strong, .review-article .text-copy b, .review-article .text-copy strong, .static-article .text-copy b, .static-article .text-copy strong"
-        )
+        # find div with id article-body
+        div = soup.find("div", id="article-body")
+        h2s = div.find_all("h2")
+        # find index of h2 with text "Genshin Impact codes"
+        index = 0
+        for i, h2 in enumerate(h2s):
+            if h2.text.strip() in CODE_H2_TEXTS[Source.GAMESRADAR]:
+                index = i
+                break
+
+        uls = div.find_all("ul")
+        # use index to get ul with codes
+        ul = uls[index]
+        lis = ul.find_all("li")
         for li in lis:
-            if not li.text.strip().isupper():
+            if li.strong is None or not li.strong.text.strip().isupper():
                 continue
-            codes.add(li.text.strip())
+            codes.add(li.strong.text.strip().split(" / ")[0].strip())
     except Exception:
         LOGGER_.exception("[GamesRadar] Error parsing codes")
 
@@ -75,15 +92,7 @@ async def parse_pockettactics_codes(
         soup = BeautifulSoup(html, "lxml")
         # find div with class entry-content
         div = soup.find("div", class_="entry-content")
-        if div is None:
-            LOGGER_.error("[Pocket Tactics] Could not find div with class entry-content")
-            return
-        # find first ul inside div
         ul = div.find("ul")
-        if not isinstance(ul, Tag):
-            LOGGER_.error("[Pocket Tactics] Could not find ul inside div with class entry-content")
-            return
-        # find lis inside ul
         lis = ul.find_all("li")
         for li in lis:
             if li.strong is None or not li.strong.text.strip().isupper():
@@ -95,7 +104,7 @@ async def parse_pockettactics_codes(
 
 @app.get("/")
 async def root() -> Response:
-    return JSONResponse(content={"message": "Hoyo Codes API v1.2.2"})
+    return JSONResponse(content={"message": "Hoyo Codes API v1.2.3"})
 
 
 @app.get("/codes")
