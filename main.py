@@ -48,10 +48,6 @@ CODE_URLS: dict[Game, dict[Source, str]] = {
         Source.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
     },
 }
-CODE_H2_TEXTS: dict[Source, set[str]] = {
-    Source.GAMESRADAR: {"Genshin Impact active codes", "Honkai Star Rail codes"},
-    Source.POCKETTACTICS: {"Genshin Impact codes", "Honkai Star Rail codes"},
-}
 
 
 async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str], url: str) -> None:
@@ -63,17 +59,17 @@ async def parse_gamesradar_codes(session: aiohttp.ClientSession, codes: set[str]
         # find div with id article-body
         div = soup.find("div", id="article-body")
         h2s = div.find_all("h2")
-        # find index of h2 with text "Genshin Impact codes"
-        index = 0
-        for i, h2 in enumerate(h2s):
-            if h2.text.strip() in CODE_H2_TEXTS[Source.GAMESRADAR]:
-                index = i
-                break
-
         uls = div.find_all("ul")
-        # use index to get ul with codes
-        ul = uls[index]
-        lis = ul.find_all("li")
+        lis = []
+
+        for i, h2 in enumerate(h2s):
+            if "livestream" in h2.text.strip().lower() or h2.text.strip() in {
+                "Genshin Impact active codes",
+                "Honkai Star Rail codes",
+            }:
+                ul = uls[i]
+                lis.extend(ul.find_all("li"))
+
         for li in lis:
             if li.strong is None or not li.strong.text.strip().isupper():
                 continue
@@ -104,7 +100,7 @@ async def parse_pockettactics_codes(
 
 @app.get("/")
 async def root() -> Response:
-    return JSONResponse(content={"message": "Hoyo Codes API v1.2.3"})
+    return JSONResponse(content={"message": "Hoyo Codes API v1.2.4"})
 
 
 @app.get("/codes")
