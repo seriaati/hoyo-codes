@@ -21,6 +21,8 @@ lxml = "^5.2.1"
 python = "^3.12"
 uvicorn = "^0.29.0"
 prisma = "^0.13.1"
+genshin = "^1.7.0"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"

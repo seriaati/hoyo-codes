@@ -371,6 +371,27 @@ files = [
 ]
 
 [[package]]
+name = "genshin"
+version = "1.7.0"
+description = "An API wrapper for Genshin Impact."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "genshin-1.7.0-py3-none-any.whl", hash = "sha256:e6ba9d17245a2915aef3707c74dca98ec2b2196330e35993b23c2e57222bc5d1"},
+    {file = "genshin-1.7.0.tar.gz", hash = "sha256:cc5efac2afb9dcdeceb43e339d25a6ef3ebf5c3cb5e5fa5debd74171d15702e2"},
+]
+
+[package.dependencies]
+aiohttp = "*"
+pydantic = "*"
+
+[package.extras]
+all = ["browser-cookie3", "click", "qrcode[pil]", "rsa"]
+auth = ["qrcode[pil]", "rsa"]
+cli = ["click"]
+cookies = ["browser-cookie3"]
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -1279,4 +1300,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "20e39622737bbe7468e601ba0643b116f3456ef8a520ed4e9798f5baeee8436c"
+content-hash = "84e960f108450c9b7887eb21e08241b6c6b43e0b754ade5371ded5d7b5d76137"
