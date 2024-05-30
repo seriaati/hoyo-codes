@@ -35,3 +35,5 @@ requires = ["poetry-core"]
 [tool.pyright]
 reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false
+reportAttributeAccessIssue = false
+reportOptionalMemberAccess = false
