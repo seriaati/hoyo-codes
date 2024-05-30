@@ -14,8 +14,6 @@ ignore = [
   "ANN002",
   "ERA001",
   "RUF100",
-  "D105",
-  "D107",
 ]
 preview = true
 select = [
@@ -44,14 +42,8 @@ select = [
   "LOG",
   "PL",
   "TRY",
-  "D",
   "RUF",
 ]
-
-[lint.per-file-ignores]
-"**/__init__.py" = ["F401", "F403"]
-"api/responses/**.py" = ["TCH002", "RUF012"]
-"api/routers/**.py" = ["TCH001", "B008"]
 
 [lint.flake8-type-checking]
 quote-annotations = true
