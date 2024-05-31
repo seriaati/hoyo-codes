@@ -24,6 +24,9 @@ GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
     genshin.Game.STARRAIL: enums.Game.hkrpg,
     genshin.Game.ZZZ: enums.Game.nap,
 }
+DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
+    v: k for k, v in GPY_GAME_TO_DB_GAME.items()
+}
 
 
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
@@ -39,14 +42,15 @@ async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
         return
 
     for code in codes:
+        existing_row = await RedeemCode.prisma().find_first(
+            where={"code": code, "game": GPY_GAME_TO_DB_GAME[game]}
+        )
+        if existing_row is not None:
+            continue
         status = await verify_code_status(cookies, code, game)
 
-        await RedeemCode.prisma().upsert(
-            where={"code_game": {"code": code, "game": GPY_GAME_TO_DB_GAME[game]}},
-            data={
-                "create": {"code": code, "game": GPY_GAME_TO_DB_GAME[game], "status": status},
-                "update": {"status": status},
-            },
+        await RedeemCode.prisma().create(
+            data={"code": code, "game": GPY_GAME_TO_DB_GAME[game], "status": status}
         )
         logger.info(f"Saved code {code} for {game} with status {status}")
         await asyncio.sleep(10)
@@ -75,6 +79,8 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
 
 
 async def update_codes() -> None:
+    logger.info("Update codes task started")
+
     db = Prisma(auto_register=True)
     await db.connect()
     logger.info("Connected to database")
@@ -83,6 +89,30 @@ async def update_codes() -> None:
     game_codes = await fetch_codes()
     for game, codes in game_codes.items():
         await save_codes(codes, game)
+
+    await db.disconnect()
+
+    logger.info("Done")
+
+
+async def check_codes() -> None:
+    logger.info("Check codes task started")
+
+    cookies = os.getenv("GENSHIN_COOKIES")
+    if cookies is None:
+        logger.error("GENSHIN_COOKIES environment variable is not set")
+        return
+
+    db = Prisma(auto_register=True)
+    await db.connect()
+    logger.info("Connected to database")
+
+    codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
+    for code in codes:
+        status = await verify_code_status(cookies, code.code, DB_GAME_TO_GPY_GAME[code.game])
+        if status != code.status:
+            await RedeemCode.prisma().update(where={"id": code.id}, data={"status": status})
+            logger.info(f"Updated status of code {code.code} to {status}")
 
     await db.disconnect()
 
