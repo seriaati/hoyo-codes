@@ -7,7 +7,7 @@ import fake_useragent
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from prisma import Prisma
-from prisma.enums import Game
+from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
 
 if TYPE_CHECKING:
@@ -29,10 +29,12 @@ ua = fake_useragent.UserAgent()
 
 @app.get("/")
 async def root() -> Response:
-    return JSONResponse(content={"message": "Hoyo Codes API v1.2.4"})
+    return JSONResponse(content={"message": "Hoyo Codes API v2.0.0"})
 
 
 @app.get("/codes")
 async def get_codes(game: Game) -> Response:
-    codes = await RedeemCode.prisma().find_many(where={"game": game})
-    return JSONResponse(content={"codes": codes, "game": game.value})
+    codes = await RedeemCode.prisma().find_many(where={"game": game, "status": CodeStatus.OK})
+    return JSONResponse(
+        content={"codes": [code.model_dump() for code in codes], "game": game.value}
+    )
