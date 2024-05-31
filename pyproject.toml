@@ -23,6 +23,7 @@ uvicorn = "^0.29.0"
 prisma = "^0.13.1"
 genshin = "^1.7.0"
 python-dotenv = "^1.0.1"
+loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
