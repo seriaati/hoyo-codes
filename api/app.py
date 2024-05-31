@@ -28,7 +28,7 @@ ua = fake_useragent.UserAgent()
 
 
 @app.get("/")
-async def root() -> Response:
+async def root() -> Response:  # noqa: RUF029
     return JSONResponse(content={"message": "Hoyo Codes API v2.0.0"})
 
 
