@@ -27,7 +27,7 @@ loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
-ruff = "^0.3.5"
+ruff = "^0.4.0"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
