@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "hoyo-codes",
+            "script": "./run.py",
+            "interpreter": "./.venv/bin/python"
+        }
+    ]
+}
