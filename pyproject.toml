@@ -1,22 +1,29 @@
 [project]
-requires-python = ">=3.9"
+description = "API to get redeem codes from Hoyoverse games"
+name = "hoyo-codes"
+requires-python = ">=3.12"
 
 [tool.poetry]
 authors = ["seria <seria.ati@gmail.com>"]
-description = "API to get gift codes from Hoyoverse games."
-license = "GPL-v3.0"
+description = "API to get redeem codes from Hoyoverse games"
+license = "GPL-3.0"
 name = "hoyo-codes"
+package-mode = false
 readme = "README.md"
 version = "1.0.0"
 
 [tool.poetry.dependencies]
 aiohttp = "^3.9.3"
 beautifulsoup4 = "^4.12.3"
-fastapi = "^0.110.1"
-python = "^3.9"
-uvicorn = "^0.29.0"
-lxml = "^5.2.1"
 fake-useragent = "^1.5.1"
+fastapi = "^0.110.1"
+lxml = "^5.2.1"
+python = "^3.12"
+uvicorn = "^0.29.0"
+prisma = "^0.13.1"
+genshin = "^1.7.0"
+python-dotenv = "^1.0.1"
+loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
@@ -25,58 +32,3 @@ ruff = "^0.3.5"
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
-
-[tool.ruff]
-line-length = 100
-
-[tool.ruff.lint]
-ignore = [
-  "E501",
-  "ANN401",
-  "ANN101",
-  "ANN102",
-  "PLR0913",
-  "PLR2004",
-  "PLR0917",
-  "PLR6301",
-  "ANN002",
-  "ERA001",
-]
-preview = true
-select = [
-  "E",
-  "W",
-  "C90",
-  "F",
-  "UP",
-  "B",
-  "SIM",
-  "I",
-  "N",
-  "TCH",
-  "ANN",
-  "ASYNC",
-  "A",
-  "C4",
-  "EM",
-  "FA",
-  "ICN",
-  "G",
-  "PIE",
-  "T20",
-  "ARG",
-  "ERA",
-  "LOG",
-  "PL",
-  "TRY",
-]
-
-[tool.ruff.lint.flake8-type-checking]
-quote-annotations = true
-
-[tool.ruff.lint.mccabe]
-max-complexity = 15
-
-[tool.pyright]
-reportIncompatibleMethodOverride = false
-reportIncompatibleVariableOverride = false
