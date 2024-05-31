@@ -1,0 +1,33 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider             = "prisma-client-py"
+    interface            = "asyncio"
+    recursive_type_depth = 5
+}
+
+model RedeemCode {
+    code   String     @id
+    status CodeStatus
+    game   Game
+}
+
+enum CodeStatus {
+    OK
+    // Invalid, expired, etc.
+    NOT_OK
+}
+
+enum Game {
+    /// Genshin Impact
+    genshin
+    /// Honkai Star Rail
+    hkrpg
+    /// Honkai Impact 3rd
+    honkai3rd
+    /// Zenless Zone Zero
+    nap
+}
