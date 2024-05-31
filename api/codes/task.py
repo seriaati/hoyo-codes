@@ -67,6 +67,8 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
                         game_codes.extend(parse_gamesradar_codes(content))
                     case CodeSource.POCKETTACTICS:
                         game_codes.extend(parse_pockettactics_codes(content))
+
+            game_codes = list(set(game_codes))
             result[game] = game_codes
 
     return result
