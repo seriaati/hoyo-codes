@@ -10,9 +10,12 @@ generator client {
 }
 
 model RedeemCode {
-    code   String     @id
+    id     Int        @id @default(autoincrement())
+    code   String
     status CodeStatus
     game   Game
+
+    @@unique([code, game])
 }
 
 enum CodeStatus {
