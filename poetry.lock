@@ -432,13 +432,13 @@ files = [
 
 [[package]]
 name = "genshin"
-version = "1.7.0"
+version = "1.7.1"
 description = "An API wrapper for Genshin Impact."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "genshin-1.7.0-py3-none-any.whl", hash = "sha256:e6ba9d17245a2915aef3707c74dca98ec2b2196330e35993b23c2e57222bc5d1"},
-    {file = "genshin-1.7.0.tar.gz", hash = "sha256:cc5efac2afb9dcdeceb43e339d25a6ef3ebf5c3cb5e5fa5debd74171d15702e2"},
+    {file = "genshin-1.7.1-py3-none-any.whl", hash = "sha256:0d9b91581f4beadea362ad59fc09d25db3af2f6ffe6e0650350555921327f560"},
+    {file = "genshin-1.7.1.tar.gz", hash = "sha256:d591f263ea914a5cd1f2a6d9cfe0d457cedb274bdfb2b8b689afff4b6df1d4e3"},
 ]
 
 [package.dependencies]
