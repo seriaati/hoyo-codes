@@ -109,10 +109,12 @@ async def check_codes() -> None:
 
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
     for code in codes:
+        logger.info(f"Checking status of code {code.code}")
         status = await verify_code_status(cookies, code.code, DB_GAME_TO_GPY_GAME[code.game])
         if status != code.status:
             await RedeemCode.prisma().update(where={"id": code.id}, data={"status": status})
             logger.info(f"Updated status of code {code.code} to {status}")
+        await asyncio.sleep(10)
 
     await db.disconnect()
 
