@@ -17,13 +17,13 @@ aiohttp = "^3.9.3"
 beautifulsoup4 = "^4.12.3"
 fake-useragent = "^1.5.1"
 fastapi = "^0.111.0"
-lxml = "^5.2.1"
-python = "^3.12"
-uvicorn = "^0.30.0"
-prisma = "^0.13.1"
-genshin = "^1.7.0"
-python-dotenv = "^1.0.1"
+genshin = {git = "https://github.com/thesadru/genshin.py", extras = ["all"], branch = "dev"}
 loguru = "^0.7.2"
+lxml = "^5.2.1"
+prisma = "^0.13.1"
+python = "^3.12"
+python-dotenv = "^1.0.1"
+uvicorn = "^0.30.0"
 
 [tool.poetry.group.dev]
 optional = true
