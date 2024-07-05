@@ -28,4 +28,9 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
     Game.HONKAI: {
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
     },
+    Game.ZZZ: {
+        CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
+        CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
+        CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
+    },
 }
