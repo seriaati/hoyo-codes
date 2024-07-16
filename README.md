@@ -39,4 +39,5 @@ The API runs on my machine, and I schedule 2 tasks:
 
 ## Notes
 
-Unfortunately, I don't play Honkai Impact 3rd, so I can't verify the status of HI3 codes.
+Unfortunately, the status of Honkai Impact 3rd codes cannot be verified, as this game doesn't support redeeming codes through websites.  
+Also, this service can't be made for the Chinese region as it also doesn't support redeeming codes through websites.
