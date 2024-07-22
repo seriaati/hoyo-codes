@@ -8,6 +8,7 @@
 - Honkai Star Rail: <https://hoyo-codes.seriaati.xyz/codes?game=hkrpg>
 - Honkai Impact 3rd: <https://hoyo-codes.seriaati.xyz/codes?game=honkai3rd>
 - Zenless Zone Zero: <https://hoyo-codes.seriaati.xyz/codes?game=nap>
+- Tears of Themis: <https://hoyo-codes.seriaati.xyz/codes?game=tot>
 
 ## How it Works
 
