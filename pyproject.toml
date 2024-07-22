@@ -10,7 +10,7 @@ license = "GPL-3.0"
 name = "hoyo-codes"
 package-mode = false
 readme = "README.md"
-version = "2.1.0"
+version = "2.1.1"
 
 [tool.poetry.dependencies]
 aiohttp = "^3.9.3"
