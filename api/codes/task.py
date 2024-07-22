@@ -29,6 +29,14 @@ DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
 }
 
 
+def get_env_or_raise(env: str) -> str:
+    value = os.getenv(env)
+    if value is None:
+        msg = f"{env} environment variable is not set"
+        raise RuntimeError(msg)
+    return value
+
+
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
     async with session.get(url) as response:
         logger.info(f"Fetching content from {url}")
@@ -36,10 +44,8 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
 
 
 async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
-    cookies = os.getenv("GENSHIN_COOKIES")
-    if cookies is None:
-        logger.error("GENSHIN_COOKIES environment variable is not set")
-        return
+    genshin_cookies = get_env_or_raise("GENSHIN_COOKIES")
+    tot_cookies = get_env_or_raise("TOT_COOKIES")
 
     for code in codes:
         existing_row = await RedeemCode.prisma().find_first(
@@ -47,6 +53,8 @@ async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
         )
         if existing_row is not None:
             continue
+
+        cookies = tot_cookies if game is genshin.Game.TOT else genshin_cookies
         status = await verify_code_status(cookies, code, game)
 
         await RedeemCode.prisma().create(
@@ -98,10 +106,8 @@ async def update_codes() -> None:
 async def check_codes() -> None:
     logger.info("Check codes task started")
 
-    cookies = os.getenv("GENSHIN_COOKIES")
-    if cookies is None:
-        logger.error("GENSHIN_COOKIES environment variable is not set")
-        return
+    genshin_cookies = get_env_or_raise("GENSHIN_COOKIES")
+    tot_cookies = get_env_or_raise("TOT_COOKIES")
 
     db = Prisma(auto_register=True)
     await db.connect()
@@ -110,6 +116,8 @@ async def check_codes() -> None:
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
     for code in codes:
         logger.info(f"Checking status of code {code.code}")
+
+        cookies = tot_cookies if code.game is enums.Game.tot else genshin_cookies
         status = await verify_code_status(cookies, code.code, DB_GAME_TO_GPY_GAME[code.game])
         if status != code.status:
             await RedeemCode.prisma().update(where={"id": code.id}, data={"status": status})
