@@ -45,7 +45,7 @@ async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> Cod
         dict_cookies.update(new_cookies)
 
         string_cookies = "; ".join(f"{key}={value}" for key, value in dict_cookies.items())
-        logger.info(f"Updated cookie to {string_cookies}")
+        logger.warning(f"Updated cookie to {string_cookies}")
 
         msg = "Updated cookie"
         raise RuntimeError(msg) from None
