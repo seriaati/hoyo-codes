@@ -12,7 +12,12 @@ from prisma import Prisma, enums
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
-from .parsers import parse_gamesradar_codes, parse_pockettactics_codes
+from .parsers import (
+    parse_gamesradar,
+    parse_pockettactics,
+    parse_prydwen,
+    parse_tot_wiki,
+)
 from .sources import CODE_URLS, CodeSource
 
 if TYPE_CHECKING:
@@ -23,6 +28,7 @@ GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
     genshin.Game.HONKAI: enums.Game.honkai3rd,
     genshin.Game.STARRAIL: enums.Game.hkrpg,
     genshin.Game.ZZZ: enums.Game.nap,
+    genshin.Game.TOT: enums.Game.tot,
 }
 DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
     v: k for k, v in GPY_GAME_TO_DB_GAME.items()
@@ -81,6 +87,8 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
                         game_codes.extend(parse_pockettactics_codes(content))
                     case CodeSource.PRYDWEN:
                         game_codes.extend(parse_prydwen(content))
+                    case CodeSource.TOT_WIKI:
+                        game_codes.extend(parse_tot_wiki(content))
 
             game_codes = list(set(game_codes))
             result[game] = game_codes
