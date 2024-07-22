@@ -82,9 +82,9 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
                 content = await fetch_content(session, url)
                 match source:
                     case CodeSource.GAMESRADAR:
-                        game_codes.extend(parse_gamesradar_codes(content))
+                        game_codes.extend(parse_gamesradar(content))
                     case CodeSource.POCKETTACTICS:
-                        game_codes.extend(parse_pockettactics_codes(content))
+                        game_codes.extend(parse_pockettactics(content))
                     case CodeSource.PRYDWEN:
                         game_codes.extend(parse_prydwen(content))
                     case CodeSource.TOT_WIKI:

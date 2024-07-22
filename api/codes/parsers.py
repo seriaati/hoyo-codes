@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 
 
-def parse_gamesradar_codes(content: str) -> list[str]:
+def parse_gamesradar(content: str) -> list[str]:
     codes: list[str] = []
 
     soup = BeautifulSoup(content, "lxml")
@@ -29,7 +29,7 @@ def parse_gamesradar_codes(content: str) -> list[str]:
     return codes
 
 
-def parse_pockettactics_codes(content: str) -> list[str]:
+def parse_pockettactics(content: str) -> list[str]:
     codes: list[str] = []
 
     soup = BeautifulSoup(content, "lxml")
