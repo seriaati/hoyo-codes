@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 GAME_UIDS: Final[Mapping[genshin.Game, int]] = {
     genshin.Game.GENSHIN: 901211014,
     genshin.Game.STARRAIL: 809162009,
+    genshin.Game.ZZZ: 1300025292,
+    genshin.Game.TOT: 202851739,
 }
 
 
