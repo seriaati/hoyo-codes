@@ -57,8 +57,9 @@ def parse_prydwen(content: str) -> list[str]:
     soup = BeautifulSoup(content, "lxml")
     # find div with class "codes"
     div = soup.find("div", class_="codes")
-    ps = div.find_all("p")
+    ps = div.find_all("p", class_="code")
     for p in ps:
         codes.append(p.text.strip())
 
-    return codes
+    return [sanitize_code(code) for code in codes]
+
