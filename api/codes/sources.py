@@ -13,6 +13,7 @@ class CodeSource(StrEnum):
     GAMESRADAR = "gamesradar"
     POCKETTACTICS = "pockettactics"
     PRYDWEN = "prydwen"
+    TOT_WIKI = "tot_wiki"
 
 
 CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
@@ -32,5 +33,8 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
         CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
+    },
+    Game.TOT: {
+        CodeSource.TOT_WIKI: "https://tot.wiki/wiki/Redeem_Code",
     },
 }
