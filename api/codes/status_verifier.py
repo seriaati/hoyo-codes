@@ -26,7 +26,12 @@ async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> Cod
 
     client = genshin.Client(cookies)
     try:
-        await client.redeem_code(code, game=game, uid=GAME_UIDS[game])
+        await client.redeem_code(
+            code,
+            game=game,
+            uid=GAME_UIDS[game],
+            region="glb_prod_wd01" if game is genshin.Game.TOT else None,
+        )
     except genshin.RedemptionClaimed:
         return CodeStatus.OK
     except genshin.RedemptionCooldown:
