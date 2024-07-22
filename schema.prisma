@@ -1,12 +1,12 @@
+generator client {
+    provider             = "prisma-client-py"
+    recursive_type_depth = "5"
+    interface            = "asyncio"
+}
+
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
-}
-
-generator client {
-    provider             = "prisma-client-py"
-    interface            = "asyncio"
-    recursive_type_depth = 5
 }
 
 model RedeemCode {
@@ -33,4 +33,6 @@ enum Game {
     honkai3rd
     /// Zenless Zone Zero
     nap
+    /// Tears of Themis
+    tot
 }
