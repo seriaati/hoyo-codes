@@ -3,6 +3,12 @@
 from bs4 import BeautifulSoup
 
 
+def sanitize_code(code: str) -> str:
+    if "/" in code:
+        return code.split("/")[0].strip()
+    return code.strip()
+
+
 def parse_gamesradar(content: str) -> list[str]:
     codes: list[str] = []
 
@@ -26,7 +32,7 @@ def parse_gamesradar(content: str) -> list[str]:
             continue
         codes.append(li.strong.text.strip().split(" / ")[0].strip())
 
-    return codes
+    return [sanitize_code(code) for code in codes]
 
 
 def parse_pockettactics(content: str) -> list[str]:
@@ -42,7 +48,7 @@ def parse_pockettactics(content: str) -> list[str]:
             continue
         codes.append(li.strong.text.strip())
 
-    return codes
+    return [sanitize_code(code) for code in codes]
 
 
 def parse_prydwen(content: str) -> list[str]:
