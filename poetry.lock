@@ -1017,13 +1017,13 @@ xmp = ["defusedxml"]
 
 [[package]]
 name = "prisma"
-version = "0.14.0"
+version = "0.15.0"
 description = "Prisma Client Python is an auto-generated and fully type-safe database client"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "prisma-0.14.0-py3-none-any.whl", hash = "sha256:778ca6d9c43295a31a0cc116bf26bb3f91f444a718b660827d8e14d050caba4b"},
-    {file = "prisma-0.14.0.tar.gz", hash = "sha256:b6ffac08f5edf179e9407d2ba8121367edf5f32f14b9519e1dcaf50f31e88d9c"},
+    {file = "prisma-0.15.0-py3-none-any.whl", hash = "sha256:de949cc94d3d91243615f22ff64490aa6e2d7cb81aabffce53d92bd3977c09a4"},
+    {file = "prisma-0.15.0.tar.gz", hash = "sha256:5cd6402aa8322625db3fc1152040404e7fc471fe7f8fa3a314fa8a99529ca107"},
 ]
 
 [package.dependencies]
@@ -1524,4 +1524,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e9063583898ba4bd17428f11754276a9964965202a53f52777e0eb138e469664"
+content-hash = "393f336140a6323208ad855fe68bc46f18848020f68bce251fb720f8746e4be2"
