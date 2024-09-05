@@ -16,7 +16,7 @@ version = "2.1.1"
 aiohttp = "^3.9.3"
 beautifulsoup4 = "^4.12.3"
 fake-useragent = "^1.5.1"
-fastapi = "^0.112.0"
+fastapi = "^0.113.0"
 genshin = {git = "https://github.com/thesadru/genshin.py", extras = ["all"], branch = "dev"}
 loguru = "^0.7.2"
 lxml = "^5.2.1"
