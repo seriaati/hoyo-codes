@@ -4,11 +4,11 @@
 
 ## Endpoints
 
-- Genshin: <https://hoyo-codes.seriaati.xyz/codes?game=genshin>
-- Honkai Star Rail: <https://hoyo-codes.seriaati.xyz/codes?game=hkrpg>
-- Honkai Impact 3rd: <https://hoyo-codes.seriaati.xyz/codes?game=honkai3rd>
-- Zenless Zone Zero: <https://hoyo-codes.seriaati.xyz/codes?game=nap>
-- Tears of Themis: <https://hoyo-codes.seriaati.xyz/codes?game=tot>
+- Genshin: <https://hoyo-codes.seria.moe/codes?game=genshin>
+- Honkai Star Rail: <https://hoyo-codes.seria.moe/codes?game=hkrpg>
+- Honkai Impact 3rd: <https://hoyo-codes.seria.moe/codes?game=honkai3rd>
+- Zenless Zone Zero: <https://hoyo-codes.seria.moe/codes?game=nap>
+- Tears of Themis: <https://hoyo-codes.seria.moe/codes?game=tot>
 
 ## How it Works
 
