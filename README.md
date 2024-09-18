@@ -40,5 +40,5 @@ The API runs on my machine, and I schedule 2 tasks:
 
 ## Notes
 
-Unfortunately, the status of Honkai Impact 3rd codes cannot be verified, as this game doesn't support redeeming codes through websites.  
-Also, this service can't be made for the Chinese region as it also doesn't support redeeming codes through websites.
+Honkai Impact 3rd and Tears of Themis code status cannot be verified. For Hi3, codes can't be redeemed on the website, and for ToT, I don't have a game account for it. The status of codes for these two games will always be `CodeStatus.OK`.  
+For CN region, they can only redeem codes in-game, so this service is not possible for them.
