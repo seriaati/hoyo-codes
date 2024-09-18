@@ -52,8 +52,7 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
 
 
 async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
-    genshin_cookies = get_env_or_raise("GENSHIN_COOKIES")
-    tot_cookies = get_env_or_raise("TOT_COOKIES")
+    cookies = get_env_or_raise("GENSHIN_COOKIES")
 
     for code in codes:
         existing_row = await RedeemCode.prisma().find_first(
@@ -62,7 +61,6 @@ async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
         if existing_row is not None:
             continue
 
-        cookies = tot_cookies if game is genshin.Game.TOT else genshin_cookies
         status = await verify_code_status(cookies, code, game)
 
         await RedeemCode.prisma().create(
