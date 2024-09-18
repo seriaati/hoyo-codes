@@ -20,7 +20,7 @@ GAME_UIDS: Final[Mapping[genshin.Game, int]] = {
 async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> CodeStatus:
     if game not in GAME_UIDS:
         # Assume code is valid for games not in GAME_UIDS
-        logger.info(f"Game {game!r} does not have a UID, assuming code is valid.")
+        logger.info(f"Game {game} does not have a UID, assuming code is valid.")
         return CodeStatus.OK
 
     client = genshin.Client(cookies)
