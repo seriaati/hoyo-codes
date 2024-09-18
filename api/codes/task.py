@@ -46,6 +46,7 @@ def get_env_or_raise(env: str) -> str:
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
     async with session.get(url) as response:
         logger.info(f"Fetching content from {url}")
+        response.raise_for_status()
         return await response.text()
 
 
@@ -76,19 +77,29 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
     headers = {"User-Agent": ua.random}
 
     async with aiohttp.ClientSession(headers=headers) as session:
-        for game, game_urls in CODE_URLS.items():
+        for game, code_sources in CODE_URLS.items():
             game_codes: list[str] = []
-            for source, url in game_urls.items():
-                content = await fetch_content(session, url)
-                match source:
-                    case CodeSource.GAMESRADAR:
-                        game_codes.extend(parse_gamesradar(content))
-                    case CodeSource.POCKETTACTICS:
-                        game_codes.extend(parse_pockettactics(content))
-                    case CodeSource.PRYDWEN:
-                        game_codes.extend(parse_prydwen(content))
-                    case CodeSource.TOT_WIKI:
-                        game_codes.extend(parse_tot_wiki(content))
+
+            for source, url in code_sources.items():
+                try:
+                    content = await fetch_content(session, url)
+                except Exception:
+                    logger.exception(f"Failed to fetch content from {url}")
+                    continue
+
+                try:
+                    match source:
+                        case CodeSource.GAMESRADAR:
+                            game_codes.extend(parse_gamesradar(content))
+                        case CodeSource.POCKETTACTICS:
+                            game_codes.extend(parse_pockettactics(content))
+                        case CodeSource.PRYDWEN:
+                            game_codes.extend(parse_prydwen(content))
+                        case CodeSource.TOT_WIKI:
+                            game_codes.extend(parse_tot_wiki(content))
+                except Exception:
+                    logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
+                    continue
 
             game_codes = list(set(game_codes))
             result[game] = game_codes
