@@ -130,24 +130,23 @@ async def update_codes() -> None:
 async def check_codes() -> None:
     logger.info("Check codes task started")
 
-    genshin_cookies = get_env_or_raise("GENSHIN_COOKIES")
-    tot_cookies = get_env_or_raise("TOT_COOKIES")
-
     db = Prisma(auto_register=True)
     await db.connect()
     logger.info("Connected to database")
 
+    cookies = get_env_or_raise("GENSHIN_COOKIES")
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
-    for code in codes:
-        logger.info(f"Checking status of code {code.code!r}, game {code.game!r}")
 
-        cookies = tot_cookies if code.game == enums.Game.tot else genshin_cookies
-        status = await verify_code_status(cookies, code.code, DB_GAME_TO_GPY_GAME[code.game])
-        if status != code.status:
-            await RedeemCode.prisma().update(where={"id": code.id}, data={"status": status})
-            logger.info(f"Updated status of code {code.code} to {status}")
-        await asyncio.sleep(10)
+    try:
+        for code in codes:
+            logger.info(f"Checking status of code {code.code!r}, game {code.game!r}")
 
-    await db.disconnect()
+            status = await verify_code_status(cookies, code.code, DB_GAME_TO_GPY_GAME[code.game])
+            if status != code.status:
+                await RedeemCode.prisma().update(where={"id": code.id}, data={"status": status})
+                logger.info(f"Updated status of code {code.code} to {status}")
 
-    logger.info("Done")
+            await asyncio.sleep(10)
+    finally:
+        await db.disconnect()
+        logger.info("Done")
