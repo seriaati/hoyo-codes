@@ -13,6 +13,7 @@ from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
 from .parsers import (
+    parse_gamerant,
     parse_gamesradar,
     parse_pockettactics,
     parse_prydwen,
@@ -97,6 +98,8 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
                             game_codes.extend(parse_prydwen(content))
                         case CodeSource.TOT_WIKI:
                             game_codes.extend(parse_tot_wiki(content))
+                        case CodeSource.GAMERANT:
+                            game_codes.extend(parse_gamerant(content))
                 except Exception:
                     logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
                     continue

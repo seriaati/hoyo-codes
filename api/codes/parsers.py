@@ -87,3 +87,19 @@ def parse_tot_wiki(content: str) -> list[str]:
         codes.append(code)
 
     return [sanitize_code(code) for code in codes]
+
+
+def parse_gamerant(content: str) -> list[str]:
+    codes: list[str] = []
+
+    soup = BeautifulSoup(content, "lxml")
+    table = soup.find("table")
+    tbody = table.find("tbody")
+    trs = tbody.find_all("tr")
+
+    for tr in trs:
+        tds = tr.find_all("td")
+        code = tds[0].text
+        codes.append(code)
+
+    return [sanitize_code(code) for code in codes]

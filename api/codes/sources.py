@@ -14,6 +14,7 @@ class CodeSource(StrEnum):
     POCKETTACTICS = "pockettactics"
     PRYDWEN = "prydwen"
     TOT_WIKI = "tot_wiki"
+    GAMERANT = "gamerant"
 
 
 CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
@@ -35,6 +36,7 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
         CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
     },
     Game.TOT: {
-        CodeSource.TOT_WIKI: "https://tot.wiki/wiki/Redeem_Code",
+        # CodeSource.TOT_WIKI: "https://tot.wiki/wiki/Redeem_Code",
+        CodeSource.GAMERANT: "https://gamerant.com/tears-of-themis-tot-codes-redeem-redemption-livestream-codes-free-s-chip/",
     },
 }
