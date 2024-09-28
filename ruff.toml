@@ -2,6 +2,7 @@ line-length = 100
 target-version = "py312"
 
 [lint]
+preview = true
 ignore = [
   "E501",
   "ANN401",
@@ -15,7 +16,6 @@ ignore = [
   "ERA001",
   "RUF100",
 ]
-preview = true
 select = [
   "E",
   "W",
@@ -50,3 +50,6 @@ quote-annotations = true
 
 [lint.pydocstyle]
 convention = "google"
+
+[lint.per-file-ignores]
+"test.py" = ["ALL"]
