@@ -14,6 +14,7 @@ model RedeemCode {
     code   String
     status CodeStatus
     game   Game
+    rewards String @default("")
 
     @@unique([code, game])
 }

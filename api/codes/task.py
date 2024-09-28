@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from typing import TYPE_CHECKING, Final
+from typing import Final
 
 import aiohttp
 import genshin
@@ -17,12 +17,8 @@ from .parsers import (
     parse_gamesradar,
     parse_pockettactics,
     parse_prydwen,
-    parse_tot_wiki,
 )
 from .sources import CODE_URLS, CodeSource
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
     genshin.Game.GENSHIN: enums.Game.genshin,
@@ -51,10 +47,12 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
         return await response.text()
 
 
-async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
+async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
     cookies = get_env_or_raise("GENSHIN_COOKIES")
 
-    for code in codes:
+    for code_tuple in codes:
+        code, rewards = code_tuple
+
         existing_row = await RedeemCode.prisma().find_first(
             where={"code": code, "game": GPY_GAME_TO_DB_GAME[game]}
         )
@@ -64,20 +62,25 @@ async def save_codes(codes: Sequence[str], game: genshin.Game) -> None:
         status = await verify_code_status(cookies, code, game)
 
         await RedeemCode.prisma().create(
-            data={"code": code, "game": GPY_GAME_TO_DB_GAME[game], "status": status}
+            data={
+                "code": code,
+                "game": GPY_GAME_TO_DB_GAME[game],
+                "status": status,
+                "rewards": rewards,
+            }
         )
-        logger.info(f"Saved code {code} for {game} with status {status}")
+        logger.info(f"Saved code {code_tuple} for {game} with status {status}")
         await asyncio.sleep(10)
 
 
-async def fetch_codes() -> dict[genshin.Game, list[str]]:
-    result: dict[genshin.Game, list[str]] = {}
+async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
+    result: dict[genshin.Game, list[tuple[str, str]]] = {}
     ua = UserAgent()
     headers = {"User-Agent": ua.random}
 
     async with aiohttp.ClientSession(headers=headers) as session:
         for game, code_sources in CODE_URLS.items():
-            game_codes: list[str] = []
+            game_codes: list[tuple[str, str]] = []
 
             for source, url in code_sources.items():
                 try:
@@ -94,8 +97,6 @@ async def fetch_codes() -> dict[genshin.Game, list[str]]:
                             game_codes.extend(parse_pockettactics(content))
                         case CodeSource.PRYDWEN:
                             game_codes.extend(parse_prydwen(content))
-                        case CodeSource.TOT_WIKI:
-                            game_codes.extend(parse_tot_wiki(content))
                         case CodeSource.GAMERANT:
                             game_codes.extend(parse_gamerant(content))
                 except Exception:
