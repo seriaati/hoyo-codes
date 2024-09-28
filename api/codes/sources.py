@@ -13,7 +13,6 @@ class CodeSource(StrEnum):
     GAMESRADAR = "gamesradar"
     POCKETTACTICS = "pockettactics"
     PRYDWEN = "prydwen"
-    TOT_WIKI = "tot_wiki"
     GAMERANT = "gamerant"
 
 
@@ -33,10 +32,9 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
     Game.ZZZ: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
-        CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
+        # CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
     },
     Game.TOT: {
-        # CodeSource.TOT_WIKI: "https://tot.wiki/wiki/Redeem_Code",
         CodeSource.GAMERANT: "https://gamerant.com/tears-of-themis-tot-codes-redeem-redemption-livestream-codes-free-s-chip/",
     },
 }

@@ -1,6 +1,5 @@
 # pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false
 
-import datetime
 
 from bs4 import BeautifulSoup
 
@@ -66,25 +65,7 @@ def parse_prydwen(content: str) -> list[str]:
     return [sanitize_code(code) for code in codes]
 
 
-def parse_tot_wiki(content: str) -> list[str]:
-    codes: list[str] = []
 
-    soup = BeautifulSoup(content, "lxml")
-    # Find table with class name "wikitable"
-    utc_9 = datetime.timezone(datetime.timedelta(hours=9))
-    table = soup.find("table", class_="wikitable")
-
-    for tr in table.find_all("tr")[1:]:
-        tds = tr.find_all("td")
-        end_date = tds[4].text.strip().replace(" UTC+9", "")  # Example: "2024-07-31 04:00:00"
-        parsed_end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S").replace(
-            tzinfo=utc_9
-        )
-        now = datetime.datetime.now(utc_9)
-        if parsed_end_date < now:
-            continue
-        code = tds[1].text.strip()
-        codes.append(code)
 
     return [sanitize_code(code) for code in codes]
 
