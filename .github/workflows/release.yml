@@ -15,3 +15,5 @@ jobs:
         
       - name: Create release
         uses: seriaati/create-release@main
+        with:
+          python_version: "3.11"
