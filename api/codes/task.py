@@ -57,6 +57,11 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
             where={"code": code, "game": GPY_GAME_TO_DB_GAME[game]}
         )
         if existing_row is not None:
+            if not existing_row.rewards:
+                await RedeemCode.prisma().update(
+                    where={"id": existing_row.id}, data={"rewards": rewards}
+                )
+                logger.info(f"Updated rewards for code {code_tuple} for {game}")
             continue
 
         status = await verify_code_status(cookies, code, game)
