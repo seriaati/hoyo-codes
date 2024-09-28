@@ -17,7 +17,7 @@ license = {file = "LICENSE"}
 name = "hoyo-codes"
 readme = "README.md"
 requires-python = ">=3.12"
-version = "2.1.1"
+version = "2.2.0"
 
 [tool.uv.sources]
 genshin = {git = "https://github.com/thesadru/genshin.py", branch = "master"}

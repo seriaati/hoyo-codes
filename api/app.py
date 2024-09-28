@@ -27,7 +27,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 async def root() -> Response:  # noqa: RUF029
-    return JSONResponse(content={"message": "Hoyo Codes API v2.1.1"})
+    return JSONResponse(content={"message": "Hoyo Codes API v2.2.0"})
 
 
 @app.get("/codes")
