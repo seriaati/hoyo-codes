@@ -3,7 +3,6 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-import fake_useragent
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from prisma import Prisma
@@ -24,7 +23,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
-ua = fake_useragent.UserAgent()
 
 
 @app.get("/")
