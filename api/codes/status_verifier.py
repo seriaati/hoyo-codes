@@ -43,5 +43,9 @@ async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> Cod
 
         msg = "Updated cookie"
         raise RuntimeError(msg) from e
+    except genshin.GenshinException as e:
+        if e.retcode == -2024:  # Code cannot be redeemed on web
+            return CodeStatus.NOT_OK
+        raise
     else:
         return CodeStatus.OK
