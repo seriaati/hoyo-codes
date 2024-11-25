@@ -35,7 +35,7 @@ The API grabs the codes from the database with `CodeStatus.OK` and game with the
 
 The API runs on my machine, and I schedule 2 tasks:
 
-- `update.py` to run once every 2 hours
+- `update.py` to run once every 1 hours
 - `check.py` to run once everyday
 
 ## Notes
