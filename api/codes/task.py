@@ -122,6 +122,8 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
             game_codes = list(set(game_codes))
             result[game] = game_codes
 
+        await asyncio.gather(*tasks)
+
     return result
 
 
