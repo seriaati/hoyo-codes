@@ -21,3 +21,8 @@ version = "2.2.1"
 
 [tool.uv.sources]
 genshin = {git = "https://github.com/thesadru/genshin.py", branch = "master"}
+
+[dependency-groups]
+dev = [
+    "requests>=2.32.3",
+]
