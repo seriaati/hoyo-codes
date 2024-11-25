@@ -88,3 +88,19 @@ def parse_gamerant(content: str) -> list[tuple[str, str]]:
         codes.append((sanitize_code(code), rewards))
 
     return codes
+
+
+def parse_tryhard_guides(content: str) -> list[tuple[str, str]]:
+    codes: list[tuple[str, str]] = []
+
+    soup = BeautifulSoup(content, "lxml")
+    div = soup.find("div", class_="entry-content")
+    ul = div.find("ul")
+    lis = ul.find_all("li")
+
+    for li in lis:
+        code = li.strong.text.strip()
+        rewards = li.text.strip().split("–")[1].strip()  # noqa: RUF001
+        codes.append((sanitize_code(code), rewards))
+
+    return codes

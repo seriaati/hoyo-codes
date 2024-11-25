@@ -14,6 +14,7 @@ class CodeSource(StrEnum):
     POCKETTACTICS = "pockettactics"
     PRYDWEN = "prydwen"
     GAMERANT = "gamerant"
+    TRYHARD_GUIDES = "tryhardguides"
 
 
 CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
@@ -35,6 +36,6 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
         # CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
     },
     Game.TOT: {
-        CodeSource.GAMERANT: "https://gamerant.com/tears-of-themis-tot-codes-redeem-redemption-livestream-codes-free-s-chip/",
+        CodeSource.TRYHARD_GUIDES: "https://tryhardguides.com/tears-of-themis-codes/",
     },
 }
