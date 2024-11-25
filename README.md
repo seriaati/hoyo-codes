@@ -1,6 +1,6 @@
 # hoyo-codes
 
- API to get gift codes from Hoyoverse games, made for auto code redemption feature in [hoyo buddy](https://github.com/seriaati/hoyo-buddy).  
+ API to get gift codes for Hoyoverse games, made for auto code redemption feature in [Hoyo Buddy](https://github.com/seriaati/hoyo-buddy).  
 
 ## Endpoints
 
