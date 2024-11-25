@@ -12,12 +12,7 @@ from prisma import Prisma, enums
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
-from .parsers import (
-    parse_gamerant,
-    parse_gamesradar,
-    parse_pockettactics,
-    parse_prydwen,
-)
+from . import parsers
 from .sources import CODE_URLS, CodeSource
 
 GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
@@ -30,6 +25,8 @@ GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
 DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
     v: k for k, v in GPY_GAME_TO_DB_GAME.items()
 }
+
+ua = UserAgent()
 
 
 def get_env_or_raise(env: str) -> str:
@@ -78,35 +75,49 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
         await asyncio.sleep(10)
 
 
+async def fetch_codes_task(
+    session: aiohttp.ClientSession,
+    url: str,
+    source: CodeSource,
+    game_codes: list[tuple[str, str]],
+    game: genshin.Game,
+) -> None:
+    try:
+        content = await fetch_content(session, url)
+    except Exception:
+        logger.exception(f"Failed to fetch content from {url}")
+        return
+
+    try:
+        match source:
+            case CodeSource.GAMESRADAR:
+                game_codes.extend(parsers.parse_gamesradar(content))
+            case CodeSource.POCKETTACTICS:
+                game_codes.extend(parsers.parse_pockettactics(content))
+            case CodeSource.PRYDWEN:
+                game_codes.extend(parsers.parse_prydwen(content))
+            case CodeSource.GAMERANT:
+                game_codes.extend(parsers.parse_gamerant(content))
+            case CodeSource.TRYHARD_GUIDES:
+                game_codes.extend(parsers.parse_tryhard_guides(content))
+    except Exception:
+        logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
+        return
+
+
 async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
     result: dict[genshin.Game, list[tuple[str, str]]] = {}
-    ua = UserAgent()
     headers = {"User-Agent": ua.random}
+    tasks: set[asyncio.Task] = set()
 
     async with aiohttp.ClientSession(headers=headers) as session:
         for game, code_sources in CODE_URLS.items():
             game_codes: list[tuple[str, str]] = []
 
             for source, url in code_sources.items():
-                try:
-                    content = await fetch_content(session, url)
-                except Exception:
-                    logger.exception(f"Failed to fetch content from {url}")
-                    continue
-
-                try:
-                    match source:
-                        case CodeSource.GAMESRADAR:
-                            game_codes.extend(parse_gamesradar(content))
-                        case CodeSource.POCKETTACTICS:
-                            game_codes.extend(parse_pockettactics(content))
-                        case CodeSource.PRYDWEN:
-                            game_codes.extend(parse_prydwen(content))
-                        case CodeSource.GAMERANT:
-                            game_codes.extend(parse_gamerant(content))
-                except Exception:
-                    logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
-                    continue
+                task = asyncio.create_task(fetch_codes_task(session, url, source, game_codes, game))
+                tasks.add(task)
+                task.add_done_callback(tasks.discard)
 
             game_codes = list(set(game_codes))
             result[game] = game_codes
