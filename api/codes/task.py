@@ -75,13 +75,12 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
         await asyncio.sleep(10)
 
 
-async def fetch_codes_task(
+async def fetch_codes_task(  # noqa: PLR0911
     session: aiohttp.ClientSession,
     url: str,
     source: CodeSource,
-    game_codes: list[tuple[str, str]],
     game: genshin.Game,
-) -> None:
+) -> list[tuple[str, str]] | None:
     try:
         content = await fetch_content(session, url)
     except Exception:
@@ -91,15 +90,17 @@ async def fetch_codes_task(
     try:
         match source:
             case CodeSource.GAMESRADAR:
-                game_codes.extend(parsers.parse_gamesradar(content))
+                return parsers.parse_gamesradar(content)
             case CodeSource.POCKETTACTICS:
-                game_codes.extend(parsers.parse_pockettactics(content))
+                return parsers.parse_pockettactics(content)
             case CodeSource.PRYDWEN:
-                game_codes.extend(parsers.parse_prydwen(content))
+                return parsers.parse_prydwen(content)
             case CodeSource.GAMERANT:
-                game_codes.extend(parsers.parse_gamerant(content))
+                return parsers.parse_gamerant(content)
             case CodeSource.TRYHARD_GUIDES:
-                game_codes.extend(parsers.parse_tryhard_guides(content))
+                return parsers.parse_tryhard_guides(content)
+            case _:
+                logger.error(f"Unknown code source {source!r}")
     except Exception:
         logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
         return
@@ -108,21 +109,19 @@ async def fetch_codes_task(
 async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
     result: dict[genshin.Game, list[tuple[str, str]]] = {}
     headers = {"User-Agent": ua.random}
-    tasks: set[asyncio.Task] = set()
 
     async with aiohttp.ClientSession(headers=headers) as session:
         for game, code_sources in CODE_URLS.items():
             game_codes: list[tuple[str, str]] = []
 
             for source, url in code_sources.items():
-                task = asyncio.create_task(fetch_codes_task(session, url, source, game_codes, game))
-                tasks.add(task)
-                task.add_done_callback(tasks.discard)
+                codes = await fetch_codes_task(session, url, source, game)
+                if codes is None:
+                    continue
+                game_codes.extend(codes)
 
             game_codes = list(set(game_codes))
             result[game] = game_codes
-
-        await asyncio.gather(*tasks)
 
     return result
 
