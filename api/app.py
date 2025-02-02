@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 import os
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
+import prisma
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response, Security
 from fastapi.responses import JSONResponse
@@ -66,7 +68,10 @@ async def get_games() -> Response:
 
 @app.post("/codes", dependencies=[Security(validate_token)])
 async def create_code(code: CreateCode) -> Response:
-    await RedeemCode.prisma().create(
-        {"code": code.code, "game": code.game, "rewards": "", "status": CodeStatus.OK}
-    )
+    try:
+        await RedeemCode.prisma().create(
+            {"code": code.code, "game": code.game, "rewards": "", "status": CodeStatus.OK}
+        )
+    except prisma.errors.UniqueViolationError as e:
+        raise HTTPException(status_code=400, detail="Code already exists") from e
     return Response(status_code=201)
