@@ -1,16 +1,24 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, Response
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Response, Security
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from prisma import Prisma
 from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+
+    from fastapi.security import HTTPAuthorizationCredentials
+
+load_dotenv()
+API_TOKEN = os.getenv("API_TOKEN")
 
 
 @asynccontextmanager
@@ -23,6 +31,16 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
+security = HTTPBearer(auto_error=True)
+
+
+async def validate_token(  # noqa: RUF029
+    credentials: HTTPAuthorizationCredentials = Security(security),  # noqa: B008
+) -> str:
+    """Validate bearer token"""
+    if credentials.credentials != API_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid API token")
+    return credentials.credentials
 
 
 @app.get("/")
@@ -36,3 +54,11 @@ async def get_codes(game: Game) -> Response:
     return JSONResponse(
         content={"codes": [code.model_dump() for code in codes], "game": game.value}
     )
+
+
+@app.post("/codes", dependencies=[Security(validate_token)])
+async def create_code(code: str, game: Game) -> Response:
+    await RedeemCode.prisma().create(
+        {"code": code, "game": game, "rewards": "", "status": CodeStatus.OK}
+    )
+    return Response(status_code=201)
