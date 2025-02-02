@@ -74,3 +74,12 @@ async def create_code(code: CreateCode) -> Response:
     except prisma.errors.UniqueViolationError as e:
         raise HTTPException(status_code=400, detail="Code already exists") from e
     return Response(status_code=201)
+
+
+@app.delete("/codes/{code_id}", dependencies=[Security(validate_token)])
+async def delete_code(code_id: int) -> Response:
+    code = await RedeemCode.prisma().find_unique(where={"id": code_id})
+    if not code:
+        raise HTTPException(status_code=404, detail="Code not found")
+    await RedeemCode.prisma().delete(where={"id": code_id})
+    return Response(status_code=204)
