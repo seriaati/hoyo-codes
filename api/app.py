@@ -59,6 +59,11 @@ async def get_codes(game: Game) -> Response:
     )
 
 
+@app.get("/games")
+async def get_games() -> Response:
+    return JSONResponse(content={"games": [game.value for game in Game]})
+
+
 @app.post("/codes", dependencies=[Security(validate_token)])
 async def create_code(code: CreateCode) -> Response:
     await RedeemCode.prisma().create(
