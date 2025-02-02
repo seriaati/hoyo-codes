@@ -12,10 +12,13 @@ from prisma import Prisma
 from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
 
+from .models import CreateCode  # noqa: TC001
+
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from fastapi.security import HTTPAuthorizationCredentials
+
 
 load_dotenv()
 API_TOKEN = os.getenv("API_TOKEN")
@@ -57,8 +60,8 @@ async def get_codes(game: Game) -> Response:
 
 
 @app.post("/codes", dependencies=[Security(validate_token)])
-async def create_code(code: str, game: Game) -> Response:
+async def create_code(code: CreateCode) -> Response:
     await RedeemCode.prisma().create(
-        {"code": code, "game": game, "rewards": "", "status": CodeStatus.OK}
+        {"code": code.code, "game": code.game, "rewards": "", "status": CodeStatus.OK}
     )
     return Response(status_code=201)
