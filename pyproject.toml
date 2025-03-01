@@ -1,5 +1,5 @@
 [project]
-authors = [{name = "seriaati", email = "seria.ati@gmail.com"}]
+authors = [{ name = "seriaati", email = "seria.ati@gmail.com" }]
 dependencies = [
   "aiohttp>=3.10.5",
   "beautifulsoup4>=4.12.3",
@@ -13,16 +13,14 @@ dependencies = [
   "uvicorn>=0.30.6",
 ]
 description = "API to get redeem codes from Hoyoverse games"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 name = "hoyo-codes"
 readme = "README.md"
 requires-python = ">=3.12"
-version = "2.2.2"
+version = "2.2.3"
 
 [tool.uv.sources]
-genshin = {git = "https://github.com/thesadru/genshin.py", branch = "master"}
+genshin = { git = "https://github.com/thesadru/genshin.py", branch = "master" }
 
 [dependency-groups]
-dev = [
-    "requests>=2.32.3",
-]
+dev = ["requests>=2.32.3"]
