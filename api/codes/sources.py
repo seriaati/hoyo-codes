@@ -27,15 +27,8 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
         CodeSource.PRYDWEN: "https://www.prydwen.gg/star-rail/",
     },
-    Game.HONKAI: {
-        CodeSource.POCKETTACTICS: "https://www.pockettactics.com/honkai-impact/codes",
-    },
     Game.ZZZ: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
-        # CodeSource.PRYDWEN: "https://www.prydwen.gg/zenless/",
-    },
-    Game.TOT: {
-        CodeSource.TRYHARD_GUIDES: "https://tryhardguides.com/tears-of-themis-codes/",
     },
 }
