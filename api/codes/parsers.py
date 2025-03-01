@@ -66,8 +66,8 @@ def parse_prydwen(content: str) -> list[tuple[str, str]]:
     divs = div.find_all("div")
 
     for div in divs:
-        code = div.find("p", class_="code").text.strip()
-        rewards = div.find("p", class_="rewards").text.strip()
+        code = div.find("p", class_="code").text.strip()  # type: ignore
+        rewards = div.find("p", class_="rewards").text.strip()  # type: ignore
         codes.append((sanitize_code(code), rewards))
 
     return codes
