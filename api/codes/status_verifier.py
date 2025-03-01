@@ -17,22 +17,24 @@ GAME_UIDS: Final[Mapping[genshin.Game, int]] = {
 }
 
 
-async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> CodeStatus:
+async def verify_code_status(
+    cookies: str, code: str, game: genshin.Game
+) -> tuple[CodeStatus, bool]:
     if game not in GAME_UIDS:
         # Assume code is valid for games not in GAME_UIDS
         logger.info(f"Game {game} does not have a UID, assuming code is valid.")
-        return CodeStatus.OK
+        return CodeStatus.OK, False
 
     client = genshin.Client(cookies)
     try:
         await client.redeem_code(code, game=game, uid=GAME_UIDS[game])
     except genshin.RedemptionClaimed:
-        return CodeStatus.OK
+        return CodeStatus.OK, True
     except genshin.RedemptionCooldown:
         await asyncio.sleep(60)
         return await verify_code_status(cookies, code, game)
     except genshin.RedemptionException:
-        return CodeStatus.NOT_OK
+        return CodeStatus.NOT_OK, True
     except genshin.InvalidCookies as e:
         new_cookies = await genshin.fetch_cookie_with_stoken_v2(cookies, token_types=[2, 4])
         dict_cookies = dict(pair.split("=", 1) for pair in cookies.split("; "))
@@ -45,7 +47,7 @@ async def verify_code_status(cookies: str, code: str, game: genshin.Game) -> Cod
         raise RuntimeError(msg) from e
     except genshin.GenshinException as e:
         if e.retcode == -2024:  # Code cannot be redeemed on web
-            return CodeStatus.NOT_OK
+            return CodeStatus.NOT_OK, True
         raise
     else:
-        return CodeStatus.OK
+        return CodeStatus.OK, True
