@@ -6,9 +6,9 @@
 
 - Genshin: <https://hoyo-codes.seria.moe/codes?game=genshin>
 - Honkai Star Rail: <https://hoyo-codes.seria.moe/codes?game=hkrpg>
-- Honkai Impact 3rd: <https://hoyo-codes.seria.moe/codes?game=honkai3rd>
+- Honkai Impact 3rd: <https://hoyo-codes.seria.moe/codes?game=honkai3rd> **[DEPRECATED]**
 - Zenless Zone Zero: <https://hoyo-codes.seria.moe/codes?game=nap>
-- Tears of Themis: <https://hoyo-codes.seria.moe/codes?game=tot>
+- Tears of Themis: <https://hoyo-codes.seria.moe/codes?game=tot> **[DEPRECATED]**
 
 ## How it Works
 
@@ -39,6 +39,9 @@ The API runs on my machine, and I schedule 2 tasks:
 - `check.py` to run once everyday
 
 ## Notes
+
+> [!WARNING]
+> Honkai Impact 3rd and Tears of Themis endpoints are deprecated, they won't be removed, but no new codes will be added.
 
 Honkai Impact 3rd and Tears of Themis code status cannot be verified. For Hi3, codes can't be redeemed on the website, and for ToT, I don't have a game account for it. The status of codes for these two games will always be `CodeStatus.OK`.  
 For CN region, they can only redeem codes in-game, so this service is not possible for them.
