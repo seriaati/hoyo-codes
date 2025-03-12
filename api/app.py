@@ -4,6 +4,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
+import genshin
 import prisma
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response, Security
@@ -12,6 +13,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from prisma import Prisma
 from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
+
+from api.codes.status_verifier import verify_code_status
+from api.codes.task import get_env_or_raise
 
 from .models import CreateCode  # noqa: TC001
 
@@ -67,9 +71,11 @@ async def get_games() -> Response:
 
 @app.post("/codes", dependencies=[Security(validate_token)])
 async def create_code(code: CreateCode) -> Response:
+    cookies = get_env_or_raise("GENSHIN_COOKIES")
     try:
+        status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
         await RedeemCode.prisma().create(
-            {"code": code.code, "game": code.game, "rewards": "", "status": CodeStatus.OK}
+            {"code": code.code, "game": code.game, "rewards": "", "status": status}
         )
     except prisma.errors.UniqueViolationError as e:
         raise HTTPException(status_code=400, detail="Code already exists") from e
