@@ -71,14 +71,15 @@ async def get_games() -> Response:
 
 @app.post("/codes", dependencies=[Security(validate_token)])
 async def create_code(code: CreateCode) -> Response:
+    existing = await RedeemCode.prisma().find_first(where={"code": code.code, "game": code.game})
+    if existing is not None:
+        raise HTTPException(status_code=400, detail="Code already exists")
+
     cookies = get_env_or_raise("GENSHIN_COOKIES")
-    try:
-        status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
-        await RedeemCode.prisma().create(
-            {"code": code.code, "game": code.game, "rewards": "", "status": status}
-        )
-    except prisma.errors.UniqueViolationError as e:
-        raise HTTPException(status_code=400, detail="Code already exists") from e
+    status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
+    await RedeemCode.prisma().create(
+        {"code": code.code, "game": code.game, "rewards": "", "status": status}
+    )
     return Response(status_code=201)
 
 
