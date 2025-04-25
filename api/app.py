@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
 import genshin
-import prisma
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response, Security
 from fastapi.responses import JSONResponse
