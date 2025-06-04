@@ -1,13 +1,17 @@
-# pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false
+# pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false, reportOperatorIssue=false, reportArgumentType=false
 from __future__ import annotations
 
+import re
+from typing import Any
+
+import genshin
 from bs4 import BeautifulSoup
 
 
 def sanitize_code(code: str) -> str:
     if "/" in code:
-        return code.split("/", maxsplit=1)[0].strip()
-    return code.strip()
+        code = code.split("/", maxsplit=1)[0]
+    return re.sub(r"\[\d+\]", "", code.strip().replace("Quick Redeem", "")).upper()
 
 
 def parse_gamesradar(content: str) -> list[tuple[str, str]]:
@@ -104,3 +108,43 @@ def parse_tryhard_guides(content: str) -> list[tuple[str, str]]:
         codes.append((sanitize_code(code), rewards))
 
     return codes
+
+
+def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
+    def is_valid_code(td: Any) -> bool:
+        if game is genshin.Game.STARRAIL:
+            return "bg-new" in td.get("class", [])
+        if game is genshin.Game.GENSHIN:
+            return td.get("style", "") == "background-color:rgb(153,255,153,0.5)"
+        if game is genshin.Game.ZZZ:
+            return "bg-green" in td.get("class", [])
+        return False
+
+    codes: list[tuple[str, str]] = []
+
+    soup = BeautifulSoup(content, "lxml")
+    table = soup.find("table", class_="wikitable")
+    tbody = table.find("tbody")
+    trs = tbody.find_all("tr")
+
+    for tr in trs:
+        tds = tr.find_all("td")
+        if len(tds) < 4 or tds[1].text.strip() == "China" or not is_valid_code(tds[3]):
+            continue
+        code = tds[0].text.strip()
+        rewards = tds[2].text.strip()
+        codes.append((sanitize_code(code), rewards))
+
+    return codes
+
+
+def parse_hsr_fandom(content: str) -> list[tuple[str, str]]:
+    return _parse_fandom(content, genshin.Game.STARRAIL)
+
+
+def parse_gi_fandom(content: str) -> list[tuple[str, str]]:
+    return _parse_fandom(content, genshin.Game.GENSHIN)
+
+
+def parse_zzz_fandom(content: str) -> list[tuple[str, str]]:
+    return _parse_fandom(content, genshin.Game.ZZZ)

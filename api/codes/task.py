@@ -89,6 +89,12 @@ async def fetch_codes_task(  # noqa: PLR0911
                 return parsers.parse_gamerant(content)
             case CodeSource.TRYHARD_GUIDES:
                 return parsers.parse_tryhard_guides(content)
+            case CodeSource.HSR_FANDOM:
+                return parsers.parse_hsr_fandom(content)
+            case CodeSource.GI_FANDOM:
+                return parsers.parse_gi_fandom(content)
+            case CodeSource.ZZZ_FANDOM:
+                return parsers.parse_zzz_fandom(content)
             case _:
                 logger.error(f"Unknown code source {source!r}")
     except Exception:
