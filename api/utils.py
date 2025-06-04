@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tomllib
 from typing import TYPE_CHECKING
 
 import aiofiles
@@ -21,3 +22,9 @@ async def set_cookies(game: Game, cookies: str) -> None:
         data = orjson.loads(await f.read())
         data[game.value] = cookies
         await f.write(orjson.dumps(data).decode("utf-8"))
+
+
+async def get_project_version() -> str:
+    async with aiofiles.open("pyproject.toml", "rb") as f:
+        data = tomllib.loads((await f.read()).decode("utf-8"))
+    return data["project"]["version"]

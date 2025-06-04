@@ -15,7 +15,7 @@ from prisma.models import RedeemCode
 
 from .codes.status_verifier import verify_code_status
 from .models import CreateCode  # noqa: TC001
-from .utils import get_cookies
+from .utils import get_cookies, get_project_version
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -54,7 +54,8 @@ async def validate_token(  # noqa: RUF029
 
 @app.get("/")
 async def root() -> Response:
-    return JSONResponse(content={"message": "Hoyo Codes API v2.2.1"})
+    version = await get_project_version()
+    return JSONResponse(content={"message": f"Hoyo Codes API v{version}"})
 
 
 @app.get("/favicon.ico")
