@@ -26,3 +26,13 @@ genshin = { git = "https://github.com/thesadru/genshin.py", branch = "master" }
 
 [dependency-groups]
 dev = ["requests>=2.32.3"]
+
+[tool.pyright]
+enableTypeIgnoreComments = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportUnnecessaryComparison = true
+reportUnnecessaryContains = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryTypeIgnoreComment = true
+typeCheckingMode = "standard"
