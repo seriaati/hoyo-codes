@@ -38,12 +38,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     lifespan=lifespan,
-    servers=[
-        {
-            "url": "https://hoyo-codes.seria.moe",
-            "description": "Production server",
-        }
-    ],
+    servers=[{"url": "https://hoyo-codes.seria.moe", "description": "Production server"}],
 )
 security = HTTPBearer(auto_error=True)
 
@@ -58,7 +53,7 @@ async def validate_token(  # noqa: RUF029
 
 
 @app.get("/")
-async def root() -> Response:  # noqa: RUF029
+async def root() -> Response:
     return JSONResponse(content={"message": "Hoyo Codes API v2.2.1"})
 
 

@@ -69,16 +69,13 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
 
 
 async def fetch_codes_task(  # noqa: PLR0911
-    session: aiohttp.ClientSession,
-    url: str,
-    source: CodeSource,
-    game: genshin.Game,
+    session: aiohttp.ClientSession, url: str, source: CodeSource, game: genshin.Game
 ) -> list[tuple[str, str]] | None:
     try:
         content = await fetch_content(session, url)
     except Exception:
         logger.exception(f"Failed to fetch content from {url}")
-        return
+        return None
 
     try:
         match source:
@@ -96,7 +93,7 @@ async def fetch_codes_task(  # noqa: PLR0911
                 logger.error(f"Unknown code source {source!r}")
     except Exception:
         logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
-        return
+        return None
 
 
 async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:

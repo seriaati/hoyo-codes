@@ -1,12 +1,12 @@
 # pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false
-
+from __future__ import annotations
 
 from bs4 import BeautifulSoup
 
 
 def sanitize_code(code: str) -> str:
     if "/" in code:
-        return code.split("/")[0].strip()
+        return code.split("/", maxsplit=1)[0].strip()
     return code.strip()
 
 

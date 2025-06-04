@@ -1,4 +1,6 @@
-from prisma.enums import Game  # noqa: TC002
+from __future__ import annotations
+
+from prisma.enums import Game
 from pydantic import BaseModel
 
 
