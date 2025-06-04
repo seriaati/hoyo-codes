@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from typing import Final
 
 import aiohttp
@@ -12,6 +11,7 @@ from prisma import Prisma, enums
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
+from ..utils import get_cookies
 from . import parsers
 from .sources import CODE_URLS, CodeSource
 
@@ -29,14 +29,6 @@ DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
 ua = UserAgent()
 
 
-def get_env_or_raise(env: str) -> str:
-    value = os.getenv(env)
-    if value is None:
-        msg = f"{env} environment variable is not set"
-        raise RuntimeError(msg)
-    return value
-
-
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
     async with session.get(url) as response:
         logger.info(f"Fetching content from {url}")
@@ -45,7 +37,7 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
 
 
 async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
-    cookies = get_env_or_raise("GENSHIN_COOKIES")
+    cookies = await get_cookies(enums.Game.genshin)
 
     for code_tuple in codes:
         code, rewards = code_tuple
@@ -151,7 +143,7 @@ async def check_codes() -> None:
     await db.connect()
     logger.info("Connected to database")
 
-    cookies = get_env_or_raise("GENSHIN_COOKIES")
+    cookies = await get_cookies(enums.Game.genshin)
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
 
     try:

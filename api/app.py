@@ -13,10 +13,9 @@ from prisma import Prisma
 from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
 
-from api.codes.status_verifier import verify_code_status
-from api.codes.task import get_env_or_raise
-
+from .codes.status_verifier import verify_code_status
 from .models import CreateCode  # noqa: TC001
+from .utils import get_cookies
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -87,7 +86,7 @@ async def create_code(code: CreateCode) -> Response:
     if existing is not None:
         raise HTTPException(status_code=400, detail="Code already exists")
 
-    cookies = get_env_or_raise("GENSHIN_COOKIES")
+    cookies = await get_cookies(Game.genshin)
     status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
     await RedeemCode.prisma().create(
         {"code": code.code, "game": code.game, "rewards": "", "status": status}
