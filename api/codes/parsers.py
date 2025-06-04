@@ -1,4 +1,6 @@
-# pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false, reportOperatorIssue=false, reportArgumentType=false
+# pyright: reportOptionalMemberAccess=false, reportAttributeAccessIssue=false
+# pyright: reportOperatorIssue=false, reportArgumentType=false
+# pyright: reportCallIssue=false
 from __future__ import annotations
 
 import re
@@ -70,8 +72,8 @@ def parse_prydwen(content: str) -> list[tuple[str, str]]:
     divs = div.find_all("div")
 
     for div in divs:
-        code = div.find("p", class_="code").text.strip()  # type: ignore
-        rewards = div.find("p", class_="rewards").text.strip()  # type: ignore
+        code = div.find("p", class_="code").text.strip()
+        rewards = div.find("p", class_="rewards").text.strip()
         codes.append((sanitize_code(code), rewards))
 
     return codes
