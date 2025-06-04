@@ -67,6 +67,11 @@ async def root() -> Response:  # noqa: RUF029
     return JSONResponse(content={"message": "Hoyo Codes API v2.2.1"})
 
 
+@app.get("/favicon.ico")
+def get_favicon() -> Response:
+    return Response(status_code=204)
+
+
 @app.get("/codes")
 async def get_codes(game: Game) -> Response:
     codes = await RedeemCode.prisma().find_many(where={"game": game, "status": CodeStatus.OK})
