@@ -37,7 +37,19 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     await db.disconnect()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    servers=[
+        {
+            "url": "https://hoyo-codes.seria.moe",
+            "description": "Production server",
+        },
+        {
+            "url": "http://localhost:1078",
+            "description": "Local development server",
+        },
+    ],
+)
 security = HTTPBearer(auto_error=True)
 
 
