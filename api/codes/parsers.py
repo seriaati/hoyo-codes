@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 def sanitize_code(code: str) -> str:
     if "/" in code:
         code = code.split("/", maxsplit=1)[0]
-    return re.sub(r"\[\d+\]", "", code.strip().replace("Quick Redeem", "")).upper()
+    return re.sub(r"\[\d+\]", "", code.strip().replace("Quick Redeem", "")).upper().strip()
 
 
 def parse_gamesradar(content: str) -> list[tuple[str, str]]:
@@ -39,7 +39,7 @@ def parse_gamesradar(content: str) -> list[tuple[str, str]]:
             continue
         code = li.strong.text.strip().split("/")[0].strip()
         rewards = li.text.strip().split("–")[1].strip()  # noqa: RUF001
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 
@@ -58,7 +58,7 @@ def parse_pockettactics(content: str) -> list[tuple[str, str]]:
 
         code = li.strong.text.strip()
         rewards = li.text.strip().split("-")[1].strip().replace(" (new!)", "")
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 
@@ -74,7 +74,7 @@ def parse_prydwen(content: str) -> list[tuple[str, str]]:
     for div in divs:
         code = div.find("p", class_="code").text.strip()
         rewards = div.find("p", class_="rewards").text.strip()
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 
@@ -91,7 +91,7 @@ def parse_gamerant(content: str) -> list[tuple[str, str]]:
         tds = tr.find_all("td")
         code = tds[0].text.strip()
         rewards = tds[1].text.strip()
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 
@@ -107,7 +107,7 @@ def parse_tryhard_guides(content: str) -> list[tuple[str, str]]:
     for li in lis:
         code = li.strong.text.strip()
         rewards = li.text.strip().split("–")[1].strip()  # noqa: RUF001
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 
@@ -135,7 +135,7 @@ def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
             continue
         code = tds[0].text.strip()
         rewards = tds[2].text.strip()
-        codes.append((sanitize_code(code), rewards))
+        codes.append((code, rewards))
 
     return codes
 

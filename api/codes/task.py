@@ -13,6 +13,7 @@ from prisma.models import RedeemCode
 from ..codes.status_verifier import verify_code_status
 from ..utils import get_cookies
 from . import parsers
+from .parsers import sanitize_code
 from .sources import CODE_URLS, CodeSource
 
 GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
@@ -68,7 +69,7 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
             await asyncio.sleep(10)
 
 
-async def fetch_codes_task(  # noqa: PLR0911
+async def fetch_codes_task(
     session: aiohttp.ClientSession, url: str, source: CodeSource, game: genshin.Game
 ) -> list[tuple[str, str]] | None:
     try:
@@ -78,25 +79,29 @@ async def fetch_codes_task(  # noqa: PLR0911
         return None
 
     try:
+        codes = None
         match source:
             case CodeSource.GAMESRADAR:
-                return parsers.parse_gamesradar(content)
+                codes = parsers.parse_gamesradar(content)
             case CodeSource.POCKETTACTICS:
-                return parsers.parse_pockettactics(content)
+                codes = parsers.parse_pockettactics(content)
             case CodeSource.PRYDWEN:
-                return parsers.parse_prydwen(content)
+                codes = parsers.parse_prydwen(content)
             case CodeSource.GAMERANT:
-                return parsers.parse_gamerant(content)
+                codes = parsers.parse_gamerant(content)
             case CodeSource.TRYHARD_GUIDES:
-                return parsers.parse_tryhard_guides(content)
+                codes = parsers.parse_tryhard_guides(content)
             case CodeSource.HSR_FANDOM:
-                return parsers.parse_hsr_fandom(content)
+                codes = parsers.parse_hsr_fandom(content)
             case CodeSource.GI_FANDOM:
-                return parsers.parse_gi_fandom(content)
+                codes = parsers.parse_gi_fandom(content)
             case CodeSource.ZZZ_FANDOM:
-                return parsers.parse_zzz_fandom(content)
+                codes = parsers.parse_zzz_fandom(content)
             case _:
                 logger.error(f"Unknown code source {source!r}")
+
+        if codes is not None:
+            return [(sanitize_code(code), rewards) for code, rewards in codes]
     except Exception:
         logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
         return None
