@@ -57,7 +57,7 @@ def parse_pockettactics(content: str) -> list[tuple[str, str]]:
             continue
 
         code = li.strong.text.strip()
-        rewards = li.text.strip().split("–")[1].strip().replace(" (new!)", "")  # noqa: RUF001
+        rewards = li.text.strip().split("-")[1].strip().replace(" (new!)", "")
         codes.append((sanitize_code(code), rewards))
 
     return codes
