@@ -1,10 +1,24 @@
 name: Pyright
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - api/**.py
+      - check.py
+      - run.py
+      - update.py
+      - .github/workflows/pyright.yml
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+    paths:
+      - api/**.py
+      - check.py
+      - run.py
+      - update.py
+      - .github/workflows/pyright.yml
 
 jobs:
   pyright:
@@ -16,10 +30,14 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Install Project
-        run: uv sync --frozen --no-dev && uv pip install pyright[nodejs]
+        run: uv sync --frozen --no-dev
 
       - name: Generate Prisma client
-        run: uv run prisma generate
+        run: |
+          uv run prisma generate
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Run Pyright
-        run: uv run pyright --outputjson
+        uses: jakebailey/pyright-action@v2
+        with:
+          extra-args: '--outputjson'

@@ -1,11 +1,25 @@
 name: Ruff lint
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - api/**.py
+      - check.py
+      - run.py
+      - update.py
+      - .github/workflows/pyright.yml
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+    paths:
+      - api/**.py
+      - check.py
+      - run.py
+      - update.py
+      - .github/workflows/pyright.yml
 
 jobs:
   ruff-lint:

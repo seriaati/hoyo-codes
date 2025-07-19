@@ -16,6 +16,6 @@ jobs:
         uses: seriaati/update-ver-num@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Create release
         uses: seriaati/create-release@main
