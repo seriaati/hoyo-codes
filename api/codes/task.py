@@ -5,6 +5,7 @@ from typing import Final
 
 import aiohttp
 import genshin
+import orjson
 from fake_useragent import UserAgent
 from loguru import logger
 from prisma import Prisma, enums
@@ -13,7 +14,6 @@ from prisma.models import RedeemCode
 from ..codes.status_verifier import verify_code_status
 from ..utils import get_cookies
 from . import parsers
-from .parsers import sanitize_code
 from .sources import CODE_URLS, CodeSource
 
 GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
@@ -31,7 +31,7 @@ ua = UserAgent()
 
 
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
-    async with session.get(url) as response:
+    async with session.get(url, headers={"x-rpc-client_type": "4"}) as response:
         logger.info(f"Fetching content from {url}")
         response.raise_for_status()
         return await response.text()
@@ -69,7 +69,7 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
             await asyncio.sleep(10)
 
 
-async def fetch_codes_task(
+async def fetch_codes_task(  # noqa: PLR0912
     session: aiohttp.ClientSession, url: str, source: CodeSource, game: genshin.Game
 ) -> list[tuple[str, str]] | None:
     try:
@@ -97,11 +97,13 @@ async def fetch_codes_task(
                 codes = parsers.parse_gi_fandom(content)
             case CodeSource.ZZZ_FANDOM:
                 codes = parsers.parse_zzz_fandom(content)
+            case CodeSource.HOYOLAB:
+                codes = parsers.parse_hoyolab(orjson.loads(content))
             case _:
                 logger.error(f"Unknown code source {source!r}")
 
         if codes is not None:
-            return [(sanitize_code(code), rewards) for code, rewards in codes]
+            return [(parsers.sanitize_code(code), rewards) for code, rewards in codes]
     except Exception:
         logger.exception(f"Failed to parse codes from {source!r} for {game!r}")
         return None

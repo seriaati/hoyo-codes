@@ -18,6 +18,7 @@ class CodeSource(StrEnum):
     HSR_FANDOM = "hsr_fandom"
     GI_FANDOM = "gi_fandom"
     ZZZ_FANDOM = "zzz_fandom"
+    HOYOLAB = "hoyolab"
 
 
 CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
@@ -25,16 +26,19 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/genshin-impact-codes-redeem/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
         CodeSource.GI_FANDOM: "https://genshin-impact.fandom.com/wiki/Promotional_Code",
+        CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=2",
     },
     Game.STARRAIL: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
         CodeSource.PRYDWEN: "https://www.prydwen.gg/star-rail/",
         CodeSource.HSR_FANDOM: "https://honkai-star-rail.fandom.com/wiki/Redemption_Code",
+        CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=6",
     },
     Game.ZZZ: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
         CodeSource.ZZZ_FANDOM: "https://zenless-zone-zero.fandom.com/wiki/Redemption_Code",
+        CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=8",
     },
 }

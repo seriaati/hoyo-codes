@@ -8,6 +8,7 @@ from typing import Any
 
 import genshin
 from bs4 import BeautifulSoup
+from pydantic import BaseModel
 
 
 def sanitize_code(code: str) -> str:
@@ -150,3 +151,30 @@ def parse_gi_fandom(content: str) -> list[tuple[str, str]]:
 
 def parse_zzz_fandom(content: str) -> list[tuple[str, str]]:
     return _parse_fandom(content, genshin.Game.ZZZ)
+
+
+class Bonus(BaseModel):
+    exchange_code: str
+
+
+class ExchangeGroup(BaseModel):
+    bonuses: list[Bonus]
+
+
+class Module(BaseModel):
+    exchange_group: ExchangeGroup | None
+
+
+def parse_hoyolab(data: dict[str, Any]) -> list[tuple[str, str]]:
+    modules = [Module(**module) for module in data["data"]["modules"]]
+    codes: list[tuple[str, str]] = []
+
+    for module in modules:
+        if module.exchange_group is None:
+            continue
+        for bonus in module.exchange_group.bonuses:
+            code = sanitize_code(bonus.exchange_code)
+            if code:
+                codes.append((code, ""))
+
+    return codes
