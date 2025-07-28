@@ -5,19 +5,17 @@ on:
     branches:
       - main
     paths:
-      - api/**.py
-      - check.py
-      - run.py
-      - update.py
+      - '**.py'
+      - pyproject.toml
+      - uv.lock
       - .github/workflows/pyright.yml
   pull_request:
     branches:
       - main
     paths:
-      - api/**.py
-      - check.py
-      - run.py
-      - update.py
+      - '**.py'
+      - pyproject.toml
+      - uv.lock
       - .github/workflows/pyright.yml
 
 jobs:

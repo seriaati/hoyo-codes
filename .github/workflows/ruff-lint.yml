@@ -6,20 +6,18 @@ on:
     branches:
       - main
     paths:
-      - api/**.py
-      - check.py
-      - run.py
-      - update.py
-      - .github/workflows/pyright.yml
+      - '**.py'
+      - pyproject.toml
+      - uv.lock
+      - .github/workflows/ruff-lint.yml
   pull_request:
     branches:
       - main
     paths:
-      - api/**.py
-      - check.py
-      - run.py
-      - update.py
-      - .github/workflows/pyright.yml
+      - '**.py'
+      - pyproject.toml
+      - uv.lock
+      - .github/workflows/ruff-lint.yml
 
 jobs:
   ruff-lint:
