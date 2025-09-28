@@ -85,7 +85,7 @@ async def create_code(code: CreateCode) -> Response:
     cookies = await get_cookies(Game.genshin)
     status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
     await RedeemCode.prisma().create(
-        {"code": code.code.upper(), "game": code.game, "rewards": "", "status": status}
+        {"code": code.code, "game": code.game, "rewards": "", "status": status}
     )
     return Response(status_code=201)
 
