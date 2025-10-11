@@ -324,14 +324,16 @@
 
             try {
                 const games = await fetchAllGames();
-                const codesPromises = games.map(game => fetchCodes(game));
+                // Filter out deprecated games
+                const activeGames = games.filter(game => !deprecatedGames.includes(game));
+                const codesPromises = activeGames.map(game => fetchCodes(game));
                 const codesResults = await Promise.all(codesPromises);
 
                 contentDiv.innerHTML = '';
                 const gamesGrid = document.createElement('div');
                 gamesGrid.className = 'games-grid';
 
-                games.forEach((game, index) => {
+                activeGames.forEach((game, index) => {
                     const card = createGameCard(game, codesResults[index]);
                     gamesGrid.appendChild(card);
                 });
