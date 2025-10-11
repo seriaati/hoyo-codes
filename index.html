@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoyo Codes - Gift Codes for Hoyoverse Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0a0a;
+            color: #e4e4e7;
+            min-height: 100vh;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #71717a;
+            font-weight: 400;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .game-card {
+            background: #111111;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .game-card:hover {
+            border-color: #3f3f46;
+        }
+
+        .game-card.deprecated {
+            opacity: 0.5;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .deprecated-badge {
+            background: transparent;
+            color: #71717a;
+            padding: 2px 8px;
+            border: 1px solid #27272a;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .codes-list {
+            list-style: none;
+        }
+
+        .code-item {
+            background: #0a0a0a;
+            border: 1px solid #27272a;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #d4d4d8;
+            transition: border-color 0.2s;
+        }
+
+        .code-item:hover {
+            border-color: #3f3f46;
+        }
+
+        .copy-btn {
+            background: transparent;
+            color: #a1a1aa;
+            border: 1px solid #27272a;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            color: #e4e4e7;
+            border-color: #3f3f46;
+        }
+
+        .copy-btn.copied {
+            color: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .loading {
+            text-align: center;
+            color: #71717a;
+            font-size: 0.95rem;
+            padding: 60px 20px;
+        }
+
+        .error {
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #71717a;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .no-codes {
+            color: #52525b;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: #52525b;
+            margin-top: 60px;
+            font-size: 0.85rem;
+        }
+
+        footer p {
+            margin-bottom: 6px;
+        }
+
+        footer a {
+            color: #71717a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #a1a1aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hoyo Codes</h1>
+            <p class="subtitle">Gift codes for Hoyoverse games <span id="version"></span></p>
+        </header>
+
+        <div id="content">
+            <div class="loading">Loading codes...</div>
+        </div>
+
+        <footer>
+            <p>Made for <a href="https://github.com/seriaati/hoyo-buddy" target="_blank">Hoyo Buddy</a></p>
+            <p><a href="https://github.com/seriaati/hoyo-codes" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = '';
+
+        const gameNames = {
+            'genshin': 'Genshin Impact',
+            'hkrpg': 'Honkai: Star Rail',
+            'nap': 'Zenless Zone Zero',
+            'honkai3rd': 'Honkai Impact 3rd',
+            'tot': 'Tears of Themis'
+        };
+
+        const deprecatedGames = ['honkai3rd', 'tot'];
+
+        async function fetchCodes(game) {
+            try {
+                const response = await fetch(`${API_BASE}/codes?game=${game}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.codes || [];
+            } catch (error) {
+                console.error(`Error fetching codes for ${game}:`, error);
+                return null;
+            }
+        }
+
+        async function fetchAllGames() {
+            try {
+                const response = await fetch(`${API_BASE}/games`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.games || [];
+            } catch (error) {
+                console.error('Error fetching games:', error);
+                return Object.keys(gameNames);
+            }
+        }
+
+        async function fetchVersion() {
+            try {
+                const response = await fetch(`${API_BASE}/version`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.version || '';
+            } catch (error) {
+                console.error('Error fetching version:', error);
+                return '';
+            }
+        }
+
+        async function loadVersion() {
+            const version = await fetchVersion();
+            if (version) {
+                document.getElementById('version').textContent = `· v${version}`;
+            }
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy code');
+            });
+        }
+
+        function createGameCard(game, codes) {
+            const isDeprecated = deprecatedGames.includes(game);
+            const card = document.createElement('div');
+            card.className = `game-card${isDeprecated ? ' deprecated' : ''}`;
+
+            const title = document.createElement('div');
+            title.className = 'game-title';
+            title.innerHTML = `
+                <span>${gameNames[game] || game}</span>
+                ${isDeprecated ? '<span class="deprecated-badge">DEPRECATED</span>' : ''}
+            `;
+            card.appendChild(title);
+
+            if (codes === null) {
+                const error = document.createElement('div');
+                error.className = 'error';
+                error.textContent = 'Failed to load codes';
+                card.appendChild(error);
+            } else if (codes.length === 0) {
+                const noCodes = document.createElement('div');
+                noCodes.className = 'no-codes';
+                noCodes.textContent = 'No active codes available';
+                card.appendChild(noCodes);
+            } else {
+                const codesList = document.createElement('ul');
+                codesList.className = 'codes-list';
+
+                codes.forEach(codeObj => {
+                    const codeItem = document.createElement('li');
+                    codeItem.className = 'code-item';
+
+                    const codeText = document.createElement('span');
+                    codeText.textContent = codeObj.code;
+
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.onclick = () => copyToClipboard(codeObj.code, copyBtn);
+
+                    codeItem.appendChild(codeText);
+                    codeItem.appendChild(copyBtn);
+                    codesList.appendChild(codeItem);
+                });
+
+                card.appendChild(codesList);
+            }
+
+            return card;
+        }
+
+        async function loadAllCodes() {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '<div class="loading">Loading codes...</div>';
+
+            try {
+                const games = await fetchAllGames();
+                const codesPromises = games.map(game => fetchCodes(game));
+                const codesResults = await Promise.all(codesPromises);
+
+                contentDiv.innerHTML = '';
+                const gamesGrid = document.createElement('div');
+                gamesGrid.className = 'games-grid';
+
+                games.forEach((game, index) => {
+                    const card = createGameCard(game, codesResults[index]);
+                    gamesGrid.appendChild(card);
+                });
+
+                contentDiv.appendChild(gamesGrid);
+            } catch (error) {
+                console.error('Error loading codes:', error);
+                contentDiv.innerHTML = '<div class="error">Failed to load codes. Please try again later.</div>';
+            }
+        }
+
+        // Load codes and version when page loads
+        loadAllCodes();
+        loadVersion();
+
+        // Refresh codes every 5 minutes
+        setInterval(loadAllCodes, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

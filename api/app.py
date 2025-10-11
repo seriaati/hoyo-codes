@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genshin
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response, Security
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from prisma import Prisma
 from prisma.enums import CodeStatus, Game
@@ -54,8 +55,8 @@ async def validate_token(  # noqa: RUF029
 
 @app.get("/")
 async def root() -> Response:
-    version = await get_project_version()
-    return JSONResponse(content={"message": f"Hoyo Codes API v{version}"})
+    html_path = Path(__file__).parent.parent / "index.html"
+    return FileResponse(html_path)
 
 
 @app.get("/favicon.ico")
@@ -74,6 +75,12 @@ async def get_codes(game: Game) -> Response:
 @app.get("/games")
 async def get_games() -> Response:
     return JSONResponse(content={"games": [game.value for game in Game]})
+
+
+@app.get("/version")
+async def get_version() -> Response:
+    version = await get_project_version()
+    return JSONResponse(content={"version": version})
 
 
 @app.post("/codes", dependencies=[Security(validate_token)])
