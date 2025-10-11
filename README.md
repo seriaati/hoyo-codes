@@ -2,6 +2,8 @@
 
  API to get gift codes for Hoyoverse games, made for auto code redemption feature in [Hoyo Buddy](https://github.com/seriaati/hoyo-buddy).  
 
+ Besides an API, there is also a simple site for displaying all the available codes: <https://hoyo-codes.seria.moe>.
+
 ## Endpoints
 
 - Genshin: <https://hoyo-codes.seria.moe/codes?game=genshin>
