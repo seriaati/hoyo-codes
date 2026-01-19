@@ -27,8 +27,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Runtime stage
 FROM python:3.12-slim-bookworm
 
-# Install curl for health checks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+# Install curl for health checks and libatomic1 for Prisma/Node.js
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libatomic1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN groupadd --gid 1000 app && \
