@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genshin
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response, Security
 from fastapi.responses import FileResponse, JSONResponse
@@ -15,6 +16,9 @@ from prisma.enums import CodeStatus, Game
 from prisma.models import RedeemCode
 
 from .codes.status_verifier import verify_code_status
+from .codes.task import check_codes as run_check_codes
+from .codes.task import update_codes as run_update_codes
+from .logging import setup_logging
 from .models import CreateCode  # noqa: TC001
 from .utils import get_cookies, get_project_version
 
@@ -27,16 +31,29 @@ if TYPE_CHECKING:
 load_dotenv()
 API_TOKEN = os.getenv("API_TOKEN")
 
+scheduler = AsyncIOScheduler()
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Context manager to contol the lifespan of the FastAPI app."""
     db = Prisma(auto_register=True)
     await db.connect()
+
+    # Schedule tasks
+    scheduler.add_job(run_update_codes, "interval", hours=1, id="update_codes")
+    scheduler.add_job(
+        run_check_codes, "cron", hour=1, minute=30, timezone="Asia/Taipei", id="check_codes"
+    )
+    scheduler.start()
+
     yield
+
+    scheduler.shutdown()
     await db.disconnect()
 
 
+setup_logging()
 app = FastAPI(
     lifespan=lifespan,
     servers=[{"url": "https://hoyo-codes.seria.moe", "description": "Production server"}],
