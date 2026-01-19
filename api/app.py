@@ -106,7 +106,10 @@ async def create_code(code: CreateCode) -> Response:
     if existing is not None:
         raise HTTPException(status_code=400, detail="Code already exists")
 
-    cookies = await get_cookies(Game.genshin)
+    cookies = await get_cookies(code.game)
+    if cookies is None:
+        raise HTTPException(status_code=400, detail=f"No cookies set for {code.game.value!r}")
+
     status, _ = await verify_code_status(cookies, code.code, genshin.Game(code.game.value))
     await RedeemCode.prisma().create(
         {"code": code.code, "game": code.game, "rewards": "", "status": status}
