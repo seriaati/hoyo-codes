@@ -33,14 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libatomic1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN groupadd --gid 1000 app && \
-    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home app
-
 WORKDIR /app
 
 # Copy application from builder
-COPY --from=builder --chown=app:app /app /app
+COPY --from=builder /app /app
 
 # Add venv to PATH
 ENV PATH="/app/.venv/bin:$PATH"
@@ -51,9 +47,6 @@ EXPOSE 1078
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:1078/health || exit 1
-
-# Switch to non-root user
-USER app
 
 # Startup script: generate prisma client, push schema, then run app
 CMD ["sh", "-c", "prisma generate && prisma db push --skip-generate && python run.py"]
