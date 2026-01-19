@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: hoyo_codes
     volumes:
-      - hoyo_codes_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hoyo -d hoyo_codes"]
       interval: 5s
@@ -29,4 +29,4 @@ services:
         condition: service_healthy
 
 volumes:
-  hoyo_codes_data:
+  postgres_data:
