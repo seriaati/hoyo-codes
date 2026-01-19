@@ -25,6 +25,13 @@ async def set_cookies(game: Game, cookies: str) -> None:
 
 
 async def get_project_version() -> str:
-    async with aiofiles.open("pyproject.toml", "rb") as f:
-        data = tomllib.loads((await f.read()).decode("utf-8"))
-    return data["project"]["version"]
+    try:
+        async with aiofiles.open("pyproject.toml", "rb") as f:
+            data = tomllib.loads((await f.read()).decode("utf-8"))
+    except FileNotFoundError:
+        return "unknown"
+
+    try:
+        return data["project"]["version"]
+    except KeyError:
+        return "unknown"
