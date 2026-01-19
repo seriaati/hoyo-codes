@@ -27,6 +27,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Runtime stage
 FROM python:3.12-slim-bookworm
 
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user
 RUN groupadd --gid 1000 app && \
     useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home app
@@ -41,6 +44,10 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 # Expose port
 EXPOSE 1078
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:1078/health || exit 1
 
 # Switch to non-root user
 USER app
