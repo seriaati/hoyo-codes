@@ -15,7 +15,7 @@ services:
       retries: 5
 
   api:
-    build: .
+    image: ghcr.io/seriaati/hoyo-codes:latest
     restart: unless-stopped
     ports:
       - "1078:1078"
