@@ -9,6 +9,7 @@ import orjson
 from fake_useragent import UserAgent
 from loguru import logger
 from prisma import Prisma, enums
+from prisma.errors import ClientAlreadyRegisteredError
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
@@ -132,16 +133,21 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
 async def update_codes() -> None:
     logger.info("Update codes task started")
 
-    db = Prisma(auto_register=True)
-    await db.connect()
-    logger.info("Connected to database")
+    db: Prisma | None = None
+    try:
+        db = Prisma()
+        await db.connect()
+        logger.info("Connected to database")
+    except ClientAlreadyRegisteredError:
+        pass
 
     logger.info("Fetching codes")
     game_codes = await fetch_codes()
     for game, codes in game_codes.items():
         await save_codes(codes, game)
 
-    await db.disconnect()
+    if db is not None:
+        await db.disconnect()
 
     logger.info("Done")
 
@@ -149,9 +155,13 @@ async def update_codes() -> None:
 async def check_codes() -> None:
     logger.info("Check codes task started")
 
-    db = Prisma(auto_register=True)
-    await db.connect()
-    logger.info("Connected to database")
+    db: Prisma | None = None
+    try:
+        db = Prisma()
+        await db.connect()
+        logger.info("Connected to database")
+    except ClientAlreadyRegisteredError:
+        pass
 
     cookies = await get_cookies(enums.Game.genshin)
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
@@ -170,5 +180,6 @@ async def check_codes() -> None:
             if redeemed:
                 await asyncio.sleep(10)
     finally:
-        await db.disconnect()
+        if db is not None:
+            await db.disconnect()
         logger.info("Done")
