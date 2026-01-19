@@ -43,10 +43,68 @@ The API runs on my machine, and I schedule 2 tasks:
 > [!NOTE]
 > Since v2.4.0, the scheduled tasks are now run inside the API using `APScheduler`, so you don't need to set up cron jobs or anything similar anymore.
 
+## Self-Hosting
+
+### Option 1: Docker Compose (Recommended)
+
+This method bundles PostgreSQL database with the API for easy setup:
+
+1. Download [docker-compose.yml](https://raw.githubusercontent.com/seriaati/hoyo-codes/main/docker-compose.yml).
+2. Create a `cookies.json` file in the same directory ([see format](#cookiesjson-format)).
+3. Change `API_TOKEN` and `POSTGRES_PASSWORD` in `docker-compose.yml`.
+4. Run `docker compose up -d`.
+
+The API will be available at `http://localhost:1078`.
+
+### Option 2: Docker Image Only
+
+If you have an existing PostgreSQL database:
+
+1. Create a `cookies.json` file ([see format](#cookiesjson-format))
+2. Run the container:
+
+```bash
+docker run -d \
+  --name hoyo-codes \
+  -p 1078:1078 \
+  -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
+  -e API_TOKEN="your_api_token" \
+  -v ./cookies.json:/app/cookies.json \
+  ghcr.io/seriaati/hoyo-codes:latest
+```
+
+Replace `DATABASE_URL` with your PostgreSQL connection string.
+
+### cookies.json Format
+
+```json
+{
+  "genshin": "stoken=...; ltoken_v2=...; ltuid_v2=...",
+  "hkrpg": "...",
+  "nap": "..."
+}
+```
+
+You need game accounts that are eligible to redeem codes (e.g. adventure rank 10+ for Genshin Impact) for the corresponding games, then link them to your Hoyoverse account to get the cookies.
+
+`stoken` is essentially required because without it the cookie_token will expire very quickly. `stoken` is a special cookie obtained by logging in with email/username and password, it lasts for a long period of time (usually a year), it can be used to generate new `cookie_token`s.
+
+Below is a snippet to get the cookies needed via [genshin.py](https://github.com/thesadru/genshin.py):
+
+```py
+import genshin
+
+client = genshin.Client()
+cookies = await client.login_with_app_password("me@gmail.com", "EheTeNandayo")
+print(cookies.to_str())
+```
+
+If you have one Hoyoverse account linked to multiple game accounts, you just have to copy paste the same cookies for those games.
+
 ## Notes
 
 > [!WARNING]
 > Honkai Impact 3rd and Tears of Themis endpoints are deprecated, they won't be removed, but no new codes will be added.
 
-Honkai Impact 3rd and Tears of Themis code status cannot be verified. For Hi3, codes can't be redeemed on the website, and for ToT, I don't have a game account for it. The status of codes for these two games will always be `CodeStatus.OK`.  
+Honkai Impact 3rd and Tears of Themis code status cannot be verified. For Hi3, codes can't be redeemed on the website, and for ToT, I don't have a game account for it. The status of codes for these two games will always be `CodeStatus.OK`.
 For CN region, they can only redeem codes in-game, so this service is not possible for them.
