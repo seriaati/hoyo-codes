@@ -76,6 +76,11 @@ async def root() -> Response:
     return FileResponse(html_path)
 
 
+@app.get("/health")
+async def health_check() -> Response:
+    return JSONResponse(content={"status": "ok"})
+
+
 @app.get("/favicon.ico")
 def get_favicon() -> Response:
     return Response(status_code=204)
