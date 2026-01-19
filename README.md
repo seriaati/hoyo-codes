@@ -70,10 +70,13 @@ docker run -d \
   -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
   -e API_TOKEN="your_api_token" \
   -v ./cookies.json:/app/cookies.json \
+  -v hoyo-codes-logs:/app/logs \
   ghcr.io/seriaati/hoyo-codes:latest
 ```
 
 Replace `DATABASE_URL` with your PostgreSQL connection string.
+
+**Note:** The `-v hoyo-codes-logs:/app/logs` volume persists application logs across container restarts.
 
 ### cookies.json Format
 
