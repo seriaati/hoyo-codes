@@ -76,7 +76,8 @@ docker run -d \
 
 Replace `DATABASE_URL` with your PostgreSQL connection string.
 
-**Note:** The `-v hoyo-codes-logs:/app/logs` volume persists application logs across container restarts.
+> [!NOTE]
+> The `-v hoyo-codes-logs:/app/logs` volume persists application logs across container restarts.
 
 ### cookies.json Format
 
