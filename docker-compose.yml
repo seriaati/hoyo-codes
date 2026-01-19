@@ -24,6 +24,7 @@ services:
       API_TOKEN: my_api_token
     volumes:
       - ./cookies.json:/app/cookies.json
+      - app_logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -36,3 +37,4 @@ services:
 
 volumes:
   postgres_data:
+  app_logs:
