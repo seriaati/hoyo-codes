@@ -9,6 +9,7 @@ import orjson
 from fake_useragent import UserAgent
 from loguru import logger
 from prisma import Prisma, enums
+from prisma.errors import ClientAlreadyRegisteredError
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
@@ -38,14 +39,16 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
 
 
 async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
-    cookies = await get_cookies(enums.Game.genshin)
+    enum_game = GPY_GAME_TO_DB_GAME[game]
+    cookies = await get_cookies(enum_game)
+    if cookies is None:
+        logger.warning(f"No cookies found for {enum_game!r}, skipping code verification")
+        return
 
     for code_tuple in codes:
         code, rewards = code_tuple
 
-        existing_row = await RedeemCode.prisma().find_first(
-            where={"code": code, "game": GPY_GAME_TO_DB_GAME[game]}
-        )
+        existing_row = await RedeemCode.prisma().find_first(where={"code": code, "game": enum_game})
         if existing_row is not None:
             if not existing_row.rewards:
                 await RedeemCode.prisma().update(
@@ -57,12 +60,7 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
         status, redeemed = await verify_code_status(cookies, code, game)
 
         await RedeemCode.prisma().create(
-            data={
-                "code": code,
-                "game": GPY_GAME_TO_DB_GAME[game],
-                "status": status,
-                "rewards": rewards,
-            }
+            data={"code": code, "game": enum_game, "status": status, "rewards": rewards}
         )
         logger.info(f"Saved code {code_tuple} for {game} with status {status}")
         if redeemed:
@@ -132,16 +130,21 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
 async def update_codes() -> None:
     logger.info("Update codes task started")
 
-    db = Prisma(auto_register=True)
-    await db.connect()
-    logger.info("Connected to database")
+    db: Prisma | None = None
+    try:
+        db = Prisma()
+        await db.connect()
+        logger.info("Connected to database")
+    except ClientAlreadyRegisteredError:
+        pass
 
     logger.info("Fetching codes")
     game_codes = await fetch_codes()
     for game, codes in game_codes.items():
         await save_codes(codes, game)
 
-    await db.disconnect()
+    if db is not None:
+        await db.disconnect()
 
     logger.info("Done")
 
@@ -149,15 +152,23 @@ async def update_codes() -> None:
 async def check_codes() -> None:
     logger.info("Check codes task started")
 
-    db = Prisma(auto_register=True)
-    await db.connect()
-    logger.info("Connected to database")
+    db: Prisma | None = None
+    try:
+        db = Prisma()
+        await db.connect()
+        logger.info("Connected to database")
+    except ClientAlreadyRegisteredError:
+        pass
 
-    cookies = await get_cookies(enums.Game.genshin)
     codes = await RedeemCode.prisma().find_many(where={"status": enums.CodeStatus.OK})
 
     try:
         for code in codes:
+            cookies = await get_cookies(code.game)
+            if cookies is None:
+                logger.warning(f"No cookies found for {code.game!r}, skipping code verification")
+                return
+
             logger.info(f"Checking status of code {code.code!r}, game {code.game!r}")
 
             status, redeemed = await verify_code_status(
@@ -170,5 +181,6 @@ async def check_codes() -> None:
             if redeemed:
                 await asyncio.sleep(10)
     finally:
-        await db.disconnect()
+        if db is not None:
+            await db.disconnect()
         logger.info("Done")

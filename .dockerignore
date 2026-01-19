@@ -1,0 +1,38 @@
+# Virtual environment
+.venv/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Local config files
+.env
+.env.*
+cookies.json
+
+# Documentation
+*.md
+LICENSE
+
+# CI/CD
+.github/
+
+# Docker
+Dockerfile
+.dockerignore
