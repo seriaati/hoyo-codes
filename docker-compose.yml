@@ -4,10 +4,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: hoyo
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: hoyo_codes
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - hoyo_codes_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hoyo -d hoyo_codes"]
       interval: 5s
@@ -20,8 +20,8 @@ services:
     ports:
       - "1078:1078"
     environment:
-      DATABASE_URL: postgresql://hoyo:${POSTGRES_PASSWORD:-changeme}@db:5432/hoyo_codes
-      API_TOKEN: ${API_TOKEN}
+      DATABASE_URL: postgresql://hoyo:postgres_password@db:5432/hoyo_codes
+      API_TOKEN: my_api_token
     volumes:
       - ./cookies.json:/app/cookies.json
     depends_on:
@@ -29,4 +29,4 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres_data:
+  hoyo_codes_data:
