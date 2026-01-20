@@ -26,6 +26,7 @@ services:
       PORT: 1078
     volumes:
       - ./cookies.json:/app/cookies.json
+      - ./uids.json:/app/uids.json
       - app_logs:/app/logs
     depends_on:
       db:
