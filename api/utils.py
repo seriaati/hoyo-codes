@@ -18,7 +18,7 @@ async def get_cookies(game: Game) -> str | None:
     except FileNotFoundError:
         return None
 
-    return data.get(game.value)
+    return data.get(str(game))
 
 
 async def set_cookies(game: Game, cookies: str) -> None:
@@ -27,7 +27,7 @@ async def set_cookies(game: Game, cookies: str) -> None:
             data = orjson.loads(await f.read())
         except io.UnsupportedOperation:
             data = {}
-        data[game.value] = cookies
+        data[str(game)] = cookies
         await f.write(orjson.dumps(data).decode("utf-8"))
 
 
