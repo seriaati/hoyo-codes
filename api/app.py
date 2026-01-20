@@ -56,7 +56,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 setup_logging()
 app = FastAPI(
     lifespan=lifespan,
-    servers=[{"url": "https://hoyo-codes.seria.moe", "description": "Production server"}],
+    servers=[
+        {"url": "https://hoyo-codes.seria.moe", "description": "Production server"},
+        {"url": "http://127.0.0.1:1078", "description": "Local development server"},
+    ],
 )
 security = HTTPBearer(auto_error=True)
 
