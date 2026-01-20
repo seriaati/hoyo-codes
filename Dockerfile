@@ -41,12 +41,13 @@ COPY --from=builder /app /app
 # Add venv to PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Expose port
-EXPOSE 1078
+# Default port (can be overridden via PORT env var)
+ENV PORT=1078
+EXPOSE $PORT
 
-# Health check
+# Health check (uses PORT env var)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:1078/health || exit 1
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
 # Startup script: generate prisma client, push schema, then run app
 CMD ["sh", "-c", "prisma generate && prisma db push --skip-generate && python run.py"]
