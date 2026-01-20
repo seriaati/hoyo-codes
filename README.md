@@ -31,7 +31,9 @@
 
 ### API
 
-The API grabs the codes from the database with `CodeStatus.OK` and game with the game requested
+The API grabs the codes from the database with `CodeStatus.OK` and game with the game requested.
+
+You can send POST and DELETE requests to `/codes` endpoint to add or remove codes manually, but you would need to provide the `API_TOKEN` in the `Authorization` header using the `Bearer` scheme. See the `/docs` endpoint for more details.
 
 ### Scheduled Task
 
@@ -59,6 +61,9 @@ This method bundles PostgreSQL database with the API for easy setup:
 
 The API will be available at `http://localhost:1078`.
 
+> [!NOTE]
+> You can change the `HOST` and `PORT` environment variables in `docker-compose.yml` to bind to different interfaces or ports.
+
 ### Option 2: Docker Image Only
 
 If you have an existing PostgreSQL database:
@@ -73,16 +78,18 @@ docker run -d \
   -p 1078:1078 \
   -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
   -e API_TOKEN="your_api_token" \
+  -e HOST="0.0.0.0" \
+  -e PORT="1078" \
   -v ./cookies.json:/app/cookies.json \
   -v ./uids.json:/app/uids.json \
   -v hoyo-codes-logs:/app/logs \
   ghcr.io/seriaati/hoyo-codes:latest
 ```
 
-Replace `DATABASE_URL` with your PostgreSQL connection string.
+Replace `DATABASE_URL` with your PostgreSQL connection string. Change `API_TOKEN` to something secure.
 
 > [!NOTE]
-> The `-v hoyo-codes-logs:/app/logs` volume persists application logs across container restarts.
+> You can change the `HOST` and `PORT` environment variables to bind to different interfaces or ports.
 
 ### cookies.json Format
 
@@ -120,7 +127,7 @@ If you have one Hoyoverse account linked to multiple game accounts, you just hav
 }
 ```
 
-## Notes
+## Extra Information
 
 > [!WARNING]
 > Honkai Impact 3rd and Tears of Themis endpoints are deprecated, they won't be removed, but no new codes will be added.

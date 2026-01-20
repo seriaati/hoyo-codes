@@ -22,6 +22,8 @@ services:
     environment:
       DATABASE_URL: postgresql://hoyo:postgres_password@db:5432/hoyo_codes
       API_TOKEN: my_api_token
+      HOST: 0.0.0.0
+      PORT: 1078
     volumes:
       - ./cookies.json:/app/cookies.json
       - app_logs:/app/logs
