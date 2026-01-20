@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 test.py
 cookies.json
+uids.json
