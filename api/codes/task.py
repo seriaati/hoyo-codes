@@ -167,7 +167,7 @@ async def check_codes() -> None:
             cookies = await get_cookies(code.game)
             if cookies is None:
                 logger.warning(f"No cookies found for {code.game!r}, skipping code verification")
-                return
+                continue
 
             logger.info(f"Checking status of code {code.code!r}, game {code.game!r}")
 
