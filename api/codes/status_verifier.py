@@ -1,32 +1,26 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Final
 
 import genshin
 from loguru import logger
 from prisma.enums import CodeStatus, Game
 
-from api.utils import set_cookies
-
-GAME_UIDS: Final[dict[genshin.Game, int]] = {
-    genshin.Game.GENSHIN: 901211014,
-    genshin.Game.STARRAIL: 809162009,
-    genshin.Game.ZZZ: 1300025292,
-}
+from api.utils import get_game_uids, set_cookies
 
 
 async def verify_code_status(  # noqa: PLR0911
     cookies: str, code: str, game: genshin.Game
 ) -> tuple[CodeStatus, bool]:
-    if game not in GAME_UIDS:
+    game_uids = await get_game_uids()
+    if game not in game_uids:
         # Assume code is valid for games not in GAME_UIDS
         logger.info(f"Game {game} does not have a UID, assuming code is valid.")
         return CodeStatus.OK, False
 
     client = genshin.Client(cookies)
     try:
-        await client.redeem_code(code, game=game, uid=GAME_UIDS[game])
+        await client.redeem_code(code, game=game, uid=game_uids[game])
     except genshin.RedemptionClaimed:
         return CodeStatus.OK, True
     except genshin.RedemptionCooldown:

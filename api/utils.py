@@ -31,6 +31,16 @@ async def set_cookies(game: Game, cookies: str) -> None:
         await f.write(orjson.dumps(data).decode("utf-8"))
 
 
+async def get_game_uids() -> dict[str, int]:
+    try:
+        async with aiofiles.open("uids.json", encoding="utf-8") as f:
+            data = orjson.loads(await f.read())
+    except FileNotFoundError:
+        return {}
+
+    return data
+
+
 async def get_project_version() -> str:
     try:
         async with aiofiles.open("pyproject.toml", "rb") as f:

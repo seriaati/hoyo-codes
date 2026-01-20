@@ -51,8 +51,9 @@ This method bundles PostgreSQL database with the API for easy setup:
 
 1. Download [docker-compose.yml](https://raw.githubusercontent.com/seriaati/hoyo-codes/main/docker-compose.yml).
 2. Create a `cookies.json` file in the same directory ([see format](#cookiesjson-format)).
-3. Change `API_TOKEN` and `POSTGRES_PASSWORD` in `docker-compose.yml`.
-4. Run `docker compose up -d`.
+3. Create a `uids.json` file in the same directory ([see format](#uidsjson-format)).
+4. Change `API_TOKEN` and `POSTGRES_PASSWORD` in `docker-compose.yml`.
+5. Run `docker compose up -d`.
 
 The API will be available at `http://localhost:1078`.
 
@@ -61,7 +62,8 @@ The API will be available at `http://localhost:1078`.
 If you have an existing PostgreSQL database:
 
 1. Create a `cookies.json` file ([see format](#cookiesjson-format))
-2. Run the container:
+2. Create a `uids.json` file ([see format](#uidsjson-format))
+3. Run the container:
 
 ```bash
 docker run -d \
@@ -70,6 +72,7 @@ docker run -d \
   -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
   -e API_TOKEN="your_api_token" \
   -v ./cookies.json:/app/cookies.json \
+  -v ./uids.json:/app/uids.json \
   -v hoyo-codes-logs:/app/logs \
   ghcr.io/seriaati/hoyo-codes:latest
 ```
@@ -104,6 +107,16 @@ print(cookies.to_str())
 ```
 
 If you have one Hoyoverse account linked to multiple game accounts, you just have to copy paste the same cookies for those games.
+
+### uids.json Format
+
+```json
+{
+  "genshin": 123456789,
+  "hkrpg": 987654321,
+  "nap": 192837465
+}
+```
 
 ## Notes
 
