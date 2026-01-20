@@ -129,3 +129,15 @@ async def delete_code(code_id: int) -> Response:
         raise HTTPException(status_code=404, detail="Code not found")
     await RedeemCode.prisma().delete(where={"id": code_id})
     return Response(status_code=204)
+
+
+@app.post("/update-codes", dependencies=[Security(validate_token)])
+async def update_codes_endpoint() -> Response:
+    await run_update_codes()
+    return Response(status_code=200)
+
+
+@app.post("/check-codes", dependencies=[Security(validate_token)])
+async def check_codes_endpoint() -> Response:
+    await run_check_codes()
+    return Response(status_code=200)

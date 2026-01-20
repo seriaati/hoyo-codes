@@ -40,6 +40,8 @@ The API runs on my machine, and I schedule 2 tasks:
 - `update.py` to run once every 1 hours
 - `check.py` to run once everyday
 
+You can send POST requests to `/update-codes` and `/check-codes` endpoints to manually trigger these tasks.
+
 > [!NOTE]
 > Since v2.4.0, the scheduled tasks are now run inside the API using `APScheduler`, so you don't need to set up cron jobs or anything similar anymore.
 
