@@ -25,9 +25,6 @@ version = "2.4.1"
 [tool.uv.sources]
 genshin = { git = "https://github.com/thesadru/genshin.py", branch = "master" }
 
-[dependency-groups]
-dev = ["requests>=2.32.3"]
-
 [tool.pyright]
 enableTypeIgnoreComments = false
 reportIncompatibleMethodOverride = false
