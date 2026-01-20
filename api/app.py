@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import genshin
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Response, Security
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Response, Security
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from prisma import Prisma
@@ -135,12 +135,12 @@ async def delete_code(code_id: int) -> Response:
 
 
 @app.post("/update-codes", dependencies=[Security(validate_token)])
-async def update_codes_endpoint() -> Response:
-    await run_update_codes()
-    return Response(status_code=200)
+async def update_codes_endpoint(background_tasks: BackgroundTasks) -> Response:
+    background_tasks.add_task(run_update_codes)
+    return Response(status_code=202)
 
 
 @app.post("/check-codes", dependencies=[Security(validate_token)])
-async def check_codes_endpoint() -> Response:
-    await run_check_codes()
-    return Response(status_code=200)
+async def check_codes_endpoint(background_tasks: BackgroundTasks) -> Response:
+    background_tasks.add_task(run_check_codes)
+    return Response(status_code=202)
