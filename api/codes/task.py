@@ -119,6 +119,9 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
                 codes = await fetch_codes_task(session, url, source, game)
                 if codes is None:
                     continue
+                if not codes and source is not CodeSource.HOYOLAB:
+                    logger.warning(f"No codes found from {source!r} for {game!r}, the parser may be outdated")
+                    continue
                 game_codes.extend(codes)
 
             game_codes = list(set(game_codes))
