@@ -127,8 +127,9 @@ def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
         tds = tr.find_all("td")
         if len(tds) < 4 or tds[1].text.strip() == "China" or not is_valid_code(tds[3]):
             continue
-        code = tds[0].text.strip()
+        code = tds[0].b.text.strip()
         rewards = tds[2].text.strip()
+        rewards = re.sub(r"\s{2,}", ", ", rewards)  # Replace multiple spaces with a comma
         codes.append((code, rewards))
 
     return codes
