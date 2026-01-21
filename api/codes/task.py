@@ -13,7 +13,7 @@ from prisma.errors import ClientAlreadyRegisteredError
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
-from ..utils import get_cookies
+from ..utils import get_cookies, send_alert
 from . import parsers
 from .sources import CODE_URLS, CodeSource
 
@@ -121,6 +121,7 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
                     continue
                 if not codes and source is not CodeSource.HOYOLAB:
                     logger.warning(f"No codes found from {source!r} for {game!r}, the parser may be outdated")
+                    await send_alert(f"No codes found from {source!r} for {game!r}, the parser may be outdated")
                     continue
                 game_codes.extend(codes)
 
