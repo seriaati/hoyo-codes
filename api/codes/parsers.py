@@ -118,6 +118,8 @@ def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
 
     soup = BeautifulSoup(content, "lxml")
     table = soup.find("table", class_="wikitable")
+    if table is None:
+        return codes
     tbody = table.find("tbody")
     trs = tbody.find_all("tr")
 
