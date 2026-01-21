@@ -118,7 +118,7 @@ def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
         if game is genshin.Game.STARRAIL:
             return "bg-new" in td.get("class", [])
         if game is genshin.Game.GENSHIN:
-            return td.get("style", "") == "background-color:rgb(153,255,153,0.5)"
+            return True
         if game is genshin.Game.ZZZ:
             return "bg-green" in td.get("class", [])
         return False
