@@ -5,8 +5,17 @@ import asyncio
 import genshin
 from loguru import logger
 from prisma.enums import CodeStatus, Game
+from prisma.models import RedeemCode
 
 from api.utils import get_game_uids, set_cookies
+
+
+async def same_family_code_exists(code: str, game: Game) -> bool:
+    prefix = code[:5]
+    existing_codes = await RedeemCode.prisma().find_many(
+        where={"game": game, "code": {"startswith": prefix}}
+    )
+    return len(existing_codes) > 0
 
 
 async def verify_code_status(  # noqa: PLR0911
@@ -17,6 +26,14 @@ async def verify_code_status(  # noqa: PLR0911
         # Assume code is valid for games not in GAME_UIDS
         logger.info(f"Game {game} does not have a UID, assuming code is valid.")
         return CodeStatus.OK, False
+
+    if game is genshin.Game.ZZZ and code.startswith("ZZZ"):
+        same_family_exists = await same_family_code_exists(code, Game.nap)
+        if same_family_exists:
+            logger.info(
+                f"Code {code} belongs to the same family as an existing code, marking as NOT_OK."
+            )
+            return CodeStatus.NOT_OK, False
 
     client = genshin.Client(cookies)
     try:
