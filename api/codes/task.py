@@ -6,7 +6,6 @@ from typing import Final
 import aiohttp
 import genshin
 import orjson
-from fake_useragent import UserAgent
 from loguru import logger
 from prisma import Prisma, enums
 from prisma.errors import ClientAlreadyRegisteredError
@@ -27,8 +26,8 @@ GPY_GAME_TO_DB_GAME: Final[dict[genshin.Game, enums.Game]] = {
 DB_GAME_TO_GPY_GAME: Final[dict[enums.Game, genshin.Game]] = {
     v: k for k, v in GPY_GAME_TO_DB_GAME.items()
 }
-
-ua = UserAgent()
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+PROXY_URL = settings.proxy_url
 
 
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
@@ -109,7 +108,7 @@ async def fetch_codes_task(  # noqa: PLR0912
 
 async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
     result: dict[genshin.Game, list[tuple[str, str]]] = {}
-    headers = {"User-Agent": ua.random}
+    headers = {"User-Agent": USER_AGENT}
 
     async with aiohttp.ClientSession(headers=headers) as session:
         for game, code_sources in CODE_URLS.items():

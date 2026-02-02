@@ -214,15 +214,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fake-useragent"
-version = "2.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/41/43/948d10bf42735709edb5ae51e23297d034086f17fc7279fef385a7acb473/fake_useragent-2.2.0.tar.gz", hash = "sha256:4e6ab6571e40cc086d788523cf9e018f618d07f9050f822ff409a4dfe17c16b2", size = 158898, upload-time = "2025-04-14T15:32:19.238Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/37/b3ea9cd5558ff4cb51957caca2193981c6b0ff30bd0d2630ac62505d99d0/fake_useragent-2.2.0-py3-none-any.whl", hash = "sha256:67f35ca4d847b0d298187443aaf020413746e56acd985a611908c73dba2daa24", size = 161695, upload-time = "2025-04-14T15:32:17.732Z" },
-]
-
-[[package]]
 name = "fastapi"
 version = "0.128.0"
 source = { registry = "https://pypi.org/simple" }
@@ -354,7 +345,6 @@ dependencies = [
     { name = "aiohttp" },
     { name = "apscheduler" },
     { name = "beautifulsoup4" },
-    { name = "fake-useragent" },
     { name = "fastapi" },
     { name = "genshin" },
     { name = "loguru" },
@@ -363,7 +353,6 @@ dependencies = [
     { name = "prisma" },
     { name = "python-dotenv" },
     { name = "uvicorn" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -371,7 +360,6 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.10.5" },
     { name = "apscheduler", specifier = ">=3.11.2" },
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
-    { name = "fake-useragent", specifier = ">=1.5.1" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "genshin", git = "https://github.com/thesadru/genshin.py?branch=master" },
     { name = "loguru", specifier = ">=0.7.2" },
