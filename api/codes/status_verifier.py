@@ -11,9 +11,12 @@ from api.utils import get_game_uids, set_cookies
 
 
 async def same_family_code_exists(code: str, game: Game) -> bool:
+    if game is not Game.nap or not code.startswith("ZZZ"):
+        return False
+
     prefix = code[:5]
     existing_codes = await RedeemCode.prisma().find_many(
-        where={"game": game, "code": {"startswith": prefix, "not": code}}
+        where={"game": game, "code": {"startswith": prefix, "not": code}, "status": CodeStatus.OK}
     )
     return len(existing_codes) > 0
 
@@ -27,18 +30,14 @@ async def verify_code_status(  # noqa: PLR0911
         logger.info(f"Game {game} does not have a UID, assuming code is valid.")
         return CodeStatus.OK, False
 
-    if game is genshin.Game.ZZZ and code.startswith("ZZZ"):
-        same_family_exists = await same_family_code_exists(code, Game.nap)
-        if same_family_exists:
-            logger.info(
-                f"Code {code} belongs to the same family as an existing code, marking as NOT_OK."
-            )
-            return CodeStatus.NOT_OK, False
-
     client = genshin.Client(cookies)
+
     try:
         await client.redeem_code(code, game=game, uid=game_uids[game])
     except genshin.RedemptionClaimed:
+        exists = await same_family_code_exists(code, Game(game.name))
+        if exists:
+            return CodeStatus.NOT_OK, True
         return CodeStatus.OK, True
     except genshin.RedemptionCooldown:
         await asyncio.sleep(60)
@@ -60,4 +59,7 @@ async def verify_code_status(  # noqa: PLR0911
             return CodeStatus.NOT_OK, True
         raise
     else:
+        exists = await same_family_code_exists(code, Game(game.name))
+        if exists:
+            return CodeStatus.NOT_OK, True
         return CodeStatus.OK, True
