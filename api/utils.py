@@ -1,20 +1,17 @@
 from __future__ import annotations
 
 import io
-import os
 import tomllib
 from typing import TYPE_CHECKING
 
 import aiofiles
 import aiohttp
 import orjson
-from dotenv import load_dotenv
+
+from api.config import settings
 
 if TYPE_CHECKING:
     from prisma.enums import Game
-
-load_dotenv()
-webhook_url = os.getenv("DISCORD_WEBHOOK")
 
 
 async def get_cookies(game: Game) -> str | None:
@@ -61,11 +58,13 @@ async def get_project_version() -> str:
 
 
 async def send_alert(message: str) -> bool:
-    if webhook_url is None:
+    if settings.discord_webhook_url is None:
         return False
 
     async with (
         aiohttp.ClientSession() as session,
-        session.post(webhook_url, json={"content": f"[hoyo-codes] {message}"}) as resp,
+        session.post(
+            settings.discord_webhook_url, json={"content": f"[hoyo-codes] {message}"}
+        ) as resp,
     ):
         return resp.status == 204

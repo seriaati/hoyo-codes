@@ -12,6 +12,7 @@ from prisma.errors import ClientAlreadyRegisteredError
 from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
+from ..config import settings
 from ..utils import get_cookies, send_alert
 from . import parsers
 from .sources import CODE_URLS, CodeSource
@@ -110,7 +111,7 @@ async def fetch_codes() -> dict[genshin.Game, list[tuple[str, str]]]:
     result: dict[genshin.Game, list[tuple[str, str]]] = {}
     headers = {"User-Agent": USER_AGENT}
 
-    async with aiohttp.ClientSession(headers=headers) as session:
+    async with aiohttp.ClientSession(headers=headers, proxy=settings.proxy_url) as session:
         for game, code_sources in CODE_URLS.items():
             game_codes: list[tuple[str, str]] = []
 

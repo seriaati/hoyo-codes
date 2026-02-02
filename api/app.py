@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genshin
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Response, Security
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -18,6 +16,7 @@ from prisma.models import RedeemCode
 from .codes.status_verifier import verify_code_status
 from .codes.task import check_codes as run_check_codes
 from .codes.task import update_codes as run_update_codes
+from .config import settings
 from .logging import setup_logging
 from .models import CreateCode  # noqa: TC001
 from .utils import get_cookies, get_project_version
@@ -27,9 +26,6 @@ if TYPE_CHECKING:
 
     from fastapi.security import HTTPAuthorizationCredentials
 
-
-load_dotenv()
-API_TOKEN = os.getenv("API_TOKEN")
 
 scheduler = AsyncIOScheduler()
 
@@ -68,7 +64,7 @@ async def validate_token(  # noqa: RUF029
     credentials: HTTPAuthorizationCredentials = Security(security),  # noqa: B008
 ) -> str:
     """Validate bearer token"""
-    if credentials.credentials != API_TOKEN:
+    if credentials.credentials != settings.api_token:
         raise HTTPException(status_code=401, detail="Invalid API token")
     return credentials.credentials
 

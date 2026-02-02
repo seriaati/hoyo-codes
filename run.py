@@ -1,19 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from contextlib import suppress
 
 import uvicorn
 
 from api.app import app
+from api.config import settings
 
 if __name__ == "__main__":
     with suppress(KeyboardInterrupt, asyncio.CancelledError):
-        uvicorn.run(
-            app,
-            host=os.getenv("HOST", "127.0.0.1"),
-            port=int(os.getenv("PORT", "1078")),
-            log_config=None,
-            log_level=None,
-        )
+        uvicorn.run(app, host=settings.host, port=settings.port, log_config=None, log_level=None)
