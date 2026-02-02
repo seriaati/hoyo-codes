@@ -47,6 +47,33 @@ You can send POST requests to `/update-codes` and `/check-codes` endpoints to ma
 > [!NOTE]
 > Since v2.4.0, the scheduled tasks are now run inside the API using `APScheduler`, so you don't need to set up cron jobs or anything similar anymore.
 
+### Same Family Code Detection
+
+Same family codes are codes that share the same prefix (ZZZ25, ZZZ24, etc.) and only one code from the same family can be redeemed per account. This pattern is currently only observed in Zenless Zone Zero codes.
+
+Because Hoyo doesn't return any special errors to indicate that a code is invalid due to another code from the same family already being redeemed (it returns "code redeemed", which is treated as a `OK` in hoyo-codes), it is a bit tricky to detect such cases. This is how hoyo-codes handles it:
+
+When checking the status of a code, if the code is found to be valid (either redeem successful or already redeemed), we check if there are any other codes in the database that share the same prefix AND it is not the code itself that's beind checked AND the the status is `OK`.
+
+If such codes exist, we mark the status of the code being checked as `NOT_OK`, since it cannot be redeemed due to another code from the same family already being redeemed.
+
+Below is an example scenario:
+
+First time when a code of a family is redeemed, and it is a valid code:
+
+1. Since no other codes of the family is in the database, `same_family_code_exists` returns `False`.
+2. The code is marked as `OK`.
+
+Later, when checking another code from the same family that is also valid:
+
+1. `same_family_code_exists` returns `True` since there is already a code from the same family in the database with `OK`.
+2. The code is marked as `NOT_OK`.
+
+Later, when checking the first code again in the `check-codes` task:
+
+1. If the code is still valid, `same_family_code_exists` returns `False` since there is no another code from the same family in the database with `OK` (excluding itself).
+2. If the code is no longer valid, it is marked as `NOT_OK` as usual.
+
 ## Self-Hosting
 
 ### Option 1: Docker Compose (Recommended)
