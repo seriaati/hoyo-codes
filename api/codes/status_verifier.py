@@ -35,7 +35,7 @@ async def verify_code_status(  # noqa: PLR0911
     try:
         await client.redeem_code(code, game=game, uid=game_uids[game])
     except genshin.RedemptionClaimed:
-        exists = await same_family_code_exists(code, Game(game.name))
+        exists = await same_family_code_exists(code, Game(game.value))
         if exists:
             return CodeStatus.NOT_OK, True
         return CodeStatus.OK, True
@@ -59,7 +59,7 @@ async def verify_code_status(  # noqa: PLR0911
             return CodeStatus.NOT_OK, True
         raise
     else:
-        exists = await same_family_code_exists(code, Game(game.name))
+        exists = await same_family_code_exists(code, Game(game.value))
         if exists:
             return CodeStatus.NOT_OK, True
         return CodeStatus.OK, True
