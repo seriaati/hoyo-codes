@@ -13,7 +13,7 @@ from api.utils import get_game_uids, set_cookies
 async def same_family_code_exists(code: str, game: Game) -> bool:
     prefix = code[:5]
     existing_codes = await RedeemCode.prisma().find_many(
-        where={"game": game, "code": {"startswith": prefix}}
+        where={"game": game, "code": {"startswith": prefix, "not": code}}
     )
     return len(existing_codes) > 0
 
