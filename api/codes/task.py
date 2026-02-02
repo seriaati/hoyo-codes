@@ -72,8 +72,8 @@ async def fetch_codes_task(  # noqa: PLR0912
 ) -> list[tuple[str, str]] | None:
     try:
         content = await fetch_content(session, url)
-    except Exception:
-        logger.exception(f"Failed to fetch content from {url}")
+    except Exception as e:
+        logger.error(f"Failed to fetch content from {url}: {e}")
         return None
 
     try:
