@@ -140,3 +140,13 @@ async def update_codes_endpoint(background_tasks: BackgroundTasks) -> Response:
 async def check_codes_endpoint(background_tasks: BackgroundTasks) -> Response:
     background_tasks.add_task(run_check_codes)
     return Response(status_code=202)
+
+
+@app.post("/check-code", dependencies=[Security(validate_token)])
+async def check_code_endpoint(code: str, game: Game) -> Response:
+    cookies = await get_cookies(game)
+    if cookies is None:
+        raise HTTPException(status_code=400, detail=f"No cookies set for {game.value!r}")
+
+    status, redeemed = await verify_code_status(cookies, code, genshin.Game(game.value))
+    return JSONResponse(content={"status": status.value, "redeemed": redeemed})
