@@ -127,6 +127,20 @@ If you have one Hoyoverse account linked to multiple game accounts, you just hav
 }
 ```
 
+### Volumes
+
+- `./cookies.json:/app/cookies.json`: Mount your cookies file
+- `./uids.json:/app/uids.json`: Mount your uids file
+- `hoyo-codes-logs:/app/logs`: Persistent logs volume
+
+### Environment Variables
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `API_TOKEN`: (Optional) Token for authenticating API requests
+- `HOST`: Host to bind the API to
+- `PORT`: Port to bind the API to
+- `PROXY_URL`: (Optional) Proxy URL for outbound requests
+
 ## Extra Information
 
 > [!WARNING]
