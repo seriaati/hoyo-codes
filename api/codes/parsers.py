@@ -14,7 +14,14 @@ from pydantic import BaseModel
 def sanitize_code(code: str) -> str:
     if "/" in code:
         code = code.split("/", maxsplit=1)[0]
-    return re.sub(r"\[\d+\]", "", code.strip().replace("Quick Redeem", "")).upper().strip()
+    if ";" in code:
+        code = code.split(";", maxsplit=1)[0]
+    return (
+        re.sub(r"\[\d+\]", "", code.strip().replace("Quick Redeem", ""))
+        .replace("NEW!", "")
+        .upper()
+        .strip()
+    )
 
 
 def parse_gamesradar(content: str) -> list[tuple[str, str]]:
@@ -173,7 +180,7 @@ def parse_gi_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
     for node in wikicode.nodes:
         if isinstance(node, mwparserfromhell.nodes.Template) and node.name.matches("Code Row"):
             try:
-                code = str(node.params[0].value).strip().split(";")[0].strip()
+                code = str(node.params[0].value).strip()
                 server = re.sub(
                     r"<!--.*?-->", "", str(node.params[1].value), flags=re.DOTALL
                 ).strip()
