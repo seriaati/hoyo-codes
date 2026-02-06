@@ -203,33 +203,54 @@ def parse_zzz_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
     page = next(iter(data["query"]["pages"].values()))
     content = page["revisions"][0]["slots"]["main"]["*"]
     wikicode = mwparserfromhell.parse(content)
-    results = []
+    results: list[tuple[str, str]] = []
 
-    for template in wikicode.filter_templates():  # noqa: PLR1702
-        if template.name.matches("Redemption Code Row"):
-            if template.has("notacode") and template.get("notacode").value.strip().lower() == "yes":
+    containers = wikicode.filter_templates(
+        matches=lambda t: t.name.matches("Redemption Code Container")
+    )
+    if not containers:
+        return results
+
+    container = containers[0]
+    if not container.has(1):
+        return results
+
+    section_nodes = container.get(1).value.nodes
+    is_active_section = False
+
+    for node in section_nodes:
+        if isinstance(node, mwparserfromhell.nodes.Comment):
+            comment_text = str(node).lower()
+            if "active" in comment_text:
+                is_active_section = True
+            elif "expired" in comment_text:
+                is_active_section = False
+            continue
+
+        if (
+            is_active_section
+            and isinstance(node, mwparserfromhell.nodes.Template)
+            and node.name.matches("Redemption Code Row")
+        ):
+            if node.has("notacode") and node.get("notacode").value.strip().lower() == "yes":
                 continue
 
             try:
-                code = str(template.get(1).value).strip()
-
+                code = str(node.get(1).value).strip()
                 rewards_raw = ""
-                if template.has(3):
-                    rewards_node = template.get(3).value
-
+                if node.has(3):
+                    rewards_node = node.get(3).value
                     inner_templates = rewards_node.filter_templates()
+                    item_list = next(
+                        (t for t in inner_templates if t.name.matches("Item List")), None
+                    )
 
-                    if inner_templates and inner_templates[0].name.matches("Item List"):
-                        item_list = inner_templates[0]
-                        if item_list.has(1):
-                            rewards_raw = str(item_list.get(1).value).strip()
-                        else:
-                            rewards_raw = str(rewards_node).strip()
+                    if item_list and item_list.has(1):
+                        rewards_raw = str(item_list.get(1).value).strip()
                     else:
                         rewards_raw = str(rewards_node).strip()
 
                 results.append((code, rewards_raw))
-
             except ValueError:
                 continue
 
