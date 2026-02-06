@@ -173,7 +173,7 @@ def parse_gi_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
     for node in wikicode.nodes:
         if isinstance(node, mwparserfromhell.nodes.Template) and node.name.matches("Code Row"):
             try:
-                code = str(node.params[0].value).strip()
+                code = str(node.params[0].value).strip().split(";")[0].strip()
                 server = re.sub(
                     r"<!--.*?-->", "", str(node.params[1].value), flags=re.DOTALL
                 ).strip()
