@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-import genshin
+import mwparserfromhell
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
 
@@ -104,47 +104,136 @@ def parse_tryhard_guides(content: str) -> list[tuple[str, str]]:
     return codes
 
 
-def _parse_fandom(content: str, game: genshin.Game) -> list[tuple[str, str]]:
-    def is_valid_code(td: Any) -> bool:
-        if game is genshin.Game.STARRAIL:
-            return "bg-new" in td.get("class", [])
-        if game is genshin.Game.GENSHIN:
-            return True
-        if game is genshin.Game.ZZZ:
-            return "bg-green" in td.get("class", [])
-        return False
+def _parse_hsr_rewards(rewards_text: str) -> str:
+    wikicode = mwparserfromhell.parse(rewards_text)
+
+    for node in wikicode.filter_templates():
+        if node.name.matches("Item List") and len(node.params) > 0:
+            items_param = str(node.params[0].value).strip()
+            items = items_param.split(";")
+            formatted_items = []
+
+            for item_text in items:
+                stripped_item = item_text.strip()
+                if "*" in stripped_item:
+                    name, quantity = stripped_item.rsplit("*", 1)
+                    formatted_items.append(f"{name.strip()} x{quantity.strip()}")
+                else:
+                    formatted_items.append(stripped_item)
+
+            return ", ".join(formatted_items)
+
+    return rewards_text
+
+
+def parse_hsr_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
+    page = next(iter(data["query"]["pages"].values()))
+    content = page["revisions"][0]["slots"]["main"]["*"]
+    wikicode = mwparserfromhell.parse(content)
 
     codes: list[tuple[str, str]] = []
+    is_active_section = False
 
-    soup = BeautifulSoup(content, "lxml")
-    table = soup.find("table", class_="wikitable")
-    if table is None:
-        return codes
-    tbody = table.find("tbody")
-    trs = tbody.find_all("tr")
+    for node in wikicode.nodes:
+        if isinstance(node, mwparserfromhell.nodes.Comment):
+            comment_text = str(node).strip()
+            if "active" in comment_text:
+                is_active_section = True
+            elif "expired" in comment_text:
+                is_active_section = False
 
-    for tr in trs:
-        tds = tr.find_all("td")
-        if len(tds) < 4 or tds[1].text.strip() == "China" or not is_valid_code(tds[3]):
-            continue
-        code = tds[0].b.text.strip()
-        rewards = tds[2].text.strip()
-        rewards = re.sub(r"\s{2,}", ", ", rewards)  # Replace multiple spaces with a comma
-        codes.append((code, rewards))
+        if (
+            is_active_section
+            and isinstance(node, mwparserfromhell.nodes.Template)
+            and node.name.matches("Redemption Code Row")
+        ):
+            try:
+                code = str(node.params[0].value).strip()
+                server = str(node.params[2].value).strip()
+                rewards = str(node.params[3].value).strip()
+
+                if server not in {"A", "G", "NA", "EU", "SEA", "SAR"}:
+                    continue
+
+                rewards = _parse_hsr_rewards(rewards)
+                codes.append((code, rewards))
+            except ValueError:
+                continue
 
     return codes
 
 
-def parse_hsr_fandom(content: str) -> list[tuple[str, str]]:
-    return _parse_fandom(content, genshin.Game.STARRAIL)
+def parse_gi_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
+    page = next(iter(data["query"]["pages"].values()))
+    content = page["revisions"][0]["slots"]["main"]["*"]
+    wikicode = mwparserfromhell.parse(content)
+
+    codes: list[tuple[str, str]] = []
+
+    for node in wikicode.nodes:
+        if isinstance(node, mwparserfromhell.nodes.Template) and node.name.matches("Code Row"):
+            try:
+                code = str(node.params[0].value).strip()
+                server = re.sub(
+                    r"<!--.*?-->", "", str(node.params[1].value), flags=re.DOTALL
+                ).strip()
+
+                notacode = "no"
+                for param in node.params:
+                    if param.name.strip() == "notacode":
+                        notacode = str(param.value).strip()
+                        break
+
+                if notacode == "yes" or server not in {"G", "A", "NA", "EU", "SEA", "SAR"}:
+                    continue
+
+                rewards = ""
+                if len(node.params) > 2:
+                    rewards = re.sub(
+                        r"<!--.*?-->", "", str(node.params[2].value), flags=re.DOTALL
+                    ).strip()
+                codes.append((code, rewards))
+            except ValueError:
+                continue
+
+    return codes
 
 
-def parse_gi_fandom(content: str) -> list[tuple[str, str]]:
-    return _parse_fandom(content, genshin.Game.GENSHIN)
+def parse_zzz_fandom(data: dict[str, Any]) -> list[tuple[str, str]]:
+    page = next(iter(data["query"]["pages"].values()))
+    content = page["revisions"][0]["slots"]["main"]["*"]
+    wikicode = mwparserfromhell.parse(content)
+    results = []
 
+    for template in wikicode.filter_templates():  # noqa: PLR1702
+        if template.name.matches("Redemption Code Row"):
+            if template.has("notacode") and template.get("notacode").value.strip().lower() == "yes":
+                continue
 
-def parse_zzz_fandom(content: str) -> list[tuple[str, str]]:
-    return _parse_fandom(content, genshin.Game.ZZZ)
+            try:
+                code = str(template.get(1).value).strip()
+
+                rewards_raw = ""
+                if template.has(3):
+                    rewards_node = template.get(3).value
+
+                    inner_templates = rewards_node.filter_templates()
+
+                    if inner_templates and inner_templates[0].name.matches("Item List"):
+                        item_list = inner_templates[0]
+                        if item_list.has(1):
+                            rewards_raw = str(item_list.get(1).value).strip()
+                        else:
+                            rewards_raw = str(rewards_node).strip()
+                    else:
+                        rewards_raw = str(rewards_node).strip()
+
+                results.append((code, rewards_raw))
+
+            except ValueError:
+                continue
+
+    return results
 
 
 class Bonus(BaseModel):

@@ -25,20 +25,20 @@ CODE_URLS: Final[Mapping[Game, dict[CodeSource, str]]] = {
     Game.GENSHIN: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/genshin-impact-codes-redeem/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/genshin-impact/codes",
-        CodeSource.GI_FANDOM: "https://genshin-impact.fandom.com/wiki/Promotional_Code",
+        CodeSource.GI_FANDOM: "https://genshin-impact.fandom.com/api.php?action=query&prop=revisions&titles=Promotional_Code&rvprop=content&rvslots=main&format=json",
         CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=2",
     },
     Game.STARRAIL: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/honkai-star-rail-codes-redeem/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/honkai-star-rail/codes",
         CodeSource.PRYDWEN: "https://www.prydwen.gg/star-rail/",
-        CodeSource.HSR_FANDOM: "https://honkai-star-rail.fandom.com/wiki/Redemption_Code",
+        CodeSource.HSR_FANDOM: "https://honkai-star-rail.fandom.com/api.php?action=query&prop=revisions&titles=Redemption_Code&rvprop=content&rvslots=main&format=json",
         CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=6",
     },
     Game.ZZZ: {
         CodeSource.GAMESRADAR: "https://www.gamesradar.com/games/action-rpg/zenless-zone-zero-codes/",
         CodeSource.POCKETTACTICS: "https://www.pockettactics.com/zenless-zone-zero/codes",
-        CodeSource.ZZZ_FANDOM: "https://zenless-zone-zero.fandom.com/wiki/Redemption_Code",
+        CodeSource.ZZZ_FANDOM: "https://zenless-zone-zero.fandom.com/api.php?action=query&prop=revisions&titles=Redemption_Code&rvprop=content&rvslots=main&format=json",
         CodeSource.HOYOLAB: "https://bbs-api-os.hoyolab.com/community/painter/wapi/circle/channel/guide/material?game_id=8",
     },
 }

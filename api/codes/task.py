@@ -32,10 +32,10 @@ PROXY_URL = settings.proxy_url
 
 
 async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
-    async with session.get(url, headers={"x-rpc-client_type": "4"}) as response:
+    async with session.get(url, headers={"x-rpc-client_type": "4"}) as resp:
         logger.info(f"Fetching content from {url}")
-        response.raise_for_status()
-        return await response.text()
+        resp.raise_for_status()
+        return await resp.text()
 
 
 async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
@@ -90,11 +90,11 @@ async def fetch_codes_task(  # noqa: PLR0912
             case CodeSource.TRYHARD_GUIDES:
                 codes = parsers.parse_tryhard_guides(content)
             case CodeSource.HSR_FANDOM:
-                codes = parsers.parse_hsr_fandom(content)
+                codes = parsers.parse_hsr_fandom(orjson.loads(content))
             case CodeSource.GI_FANDOM:
-                codes = parsers.parse_gi_fandom(content)
+                codes = parsers.parse_gi_fandom(orjson.loads(content))
             case CodeSource.ZZZ_FANDOM:
-                codes = parsers.parse_zzz_fandom(content)
+                codes = parsers.parse_zzz_fandom(orjson.loads(content))
             case CodeSource.HOYOLAB:
                 codes = parsers.parse_hoyolab(orjson.loads(content))
             case _:
