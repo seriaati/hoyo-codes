@@ -14,7 +14,11 @@ async def same_family_code_exists(code: str, game: Game) -> bool:
     if game is not Game.nap or not code.startswith("ZZZ"):
         return False
 
-    prefix = code[:5]
+    prefix = code[:5]  # ZZZXX
+    # XX needs to be numbers
+    if len(prefix) != 5 or not prefix[3:].isdigit():
+        return False
+
     existing_codes = await RedeemCode.prisma().find_many(
         where={"game": game, "code": {"startswith": prefix, "not": code}, "status": CodeStatus.OK}
     )
