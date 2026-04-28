@@ -27,4 +27,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Run ruff lint
-        uses: astral-sh/ruff-action@v4
+        uses: astral-sh/ruff-action@v4.0.0
