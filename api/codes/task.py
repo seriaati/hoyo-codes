@@ -13,7 +13,7 @@ from prisma.models import RedeemCode
 
 from ..codes.status_verifier import verify_code_status
 from ..config import settings
-from ..utils import get_cookies, send_alert
+from ..utils import get_cookies, send_alert, send_new_codes
 from . import parsers
 from .sources import CODE_URLS, CodeSource
 
@@ -38,12 +38,13 @@ async def fetch_content(session: aiohttp.ClientSession, url: str) -> str:
         return await resp.text()
 
 
-async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
+async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> list[str]:
+    new_codes: list[str] = []
     enum_game = GPY_GAME_TO_DB_GAME[game]
     cookies = await get_cookies(enum_game)
     if cookies is None:
         logger.warning(f"No cookies found for {enum_game!r}, skipping code verification")
-        return
+        return []
 
     for code_tuple in codes:
         code, rewards = code_tuple
@@ -58,13 +59,17 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> None:
             continue
 
         status, redeemed = await verify_code_status(cookies, code, game)
-
         await RedeemCode.prisma().create(
             data={"code": code, "game": enum_game, "status": status, "rewards": rewards}
         )
+        if status is enums.CodeStatus.OK:
+            new_codes.append(code)
         logger.info(f"Saved code {code_tuple} for {game} with status {status}")
+
         if redeemed:
             await asyncio.sleep(10)
+
+    return new_codes
 
 
 async def fetch_codes_task(  # noqa: PLR0912
@@ -153,7 +158,8 @@ async def update_codes() -> None:
     logger.info("Fetching codes")
     game_codes = await fetch_codes()
     for game, codes in game_codes.items():
-        await save_codes(codes, game)
+        new_codes = await save_codes(codes, game)
+        await send_new_codes(new_codes, game=game)
 
     if db is not None:
         await db.disconnect()

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 import aiohttp
+import genshin
 import orjson
 
 from api.config import settings
@@ -57,14 +58,40 @@ async def get_project_version() -> str:
         return "unknown"
 
 
-async def send_alert(message: str) -> bool:
-    if settings.discord_webhook_url is None:
-        return False
-
+async def send_discord_webhook(message: str, *, url: str) -> bool:
     async with (
         aiohttp.ClientSession() as session,
-        session.post(
-            settings.discord_webhook_url, json={"content": f"[hoyo-codes] {message}"}
-        ) as resp,
+        session.post(url, json={"content": message}) as resp,
     ):
         return resp.status == 204
+
+
+async def send_alert(message: str) -> bool:
+    if settings.alert_webhook is None:
+        return False
+
+    return await send_discord_webhook(message, url=settings.alert_webhook)
+
+
+async def send_new_codes(codes: list[str], *, game: genshin.Game) -> bool:
+    if not codes:
+        return False
+
+    webhook_url = None
+    redeem_url = None
+
+    if game is genshin.Game.GENSHIN:
+        webhook_url = settings.gi_new_code_webhook
+        redeem_url = "https://genshin.hoyoverse.com/en/gift?code={code}"
+    elif game is genshin.Game.STARRAIL:
+        webhook_url = settings.hsr_new_code_webhook
+        redeem_url = "https://hsr.hoyoverse.com/gift?code={code}"
+    elif game is genshin.Game.ZZZ:
+        webhook_url = settings.zzz_new_code_webhook
+        redeem_url = "https://zenless.hoyoverse.com/redemption?code={code}"
+
+    if webhook_url is None or redeem_url is None:
+        return False
+
+    message = "\n".join(f"* [{code}]({redeem_url.format(code=code)})" for code in codes)
+    return await send_discord_webhook(message, url=webhook_url)
