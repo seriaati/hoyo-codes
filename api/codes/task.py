@@ -58,9 +58,6 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> list[s
                 logger.info(f"Updated rewards for code {code_tuple} for {game}")
             continue
 
-        if code == "ZZZSUSHIRO":
-            continue
-
         status, redeemed = await verify_code_status(cookies, code, game)
         await RedeemCode.prisma().create(
             data={"code": code, "game": enum_game, "status": status, "rewards": rewards}
