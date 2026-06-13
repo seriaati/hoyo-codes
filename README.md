@@ -4,6 +4,12 @@
 
  Besides an API, there is also a simple site for displaying all the available codes: <https://hoyo-codes.seria.moe>.
 
+## Notice: Be Aware of Regional Codes
+
+Hoyo recently introduced regional codes, like ZZZSUSHIRO, which is only available for ZZZ Asia accounts. This API is not able to determine if a code is regional or not, and some `OK` codes returned by the API may be regional codes. This is because the account used for validating codes on the hosted instance of this API is a Asia account, so if a code is regional-specific to Asia, it will be marked as `OK`. So, when consuming the API, you may want to add extra checks to handle redemption failures caused by regional codes.
+
+It is currently not planned to add regional code detection to the API, since I would need accounts from different regions to test the redemption of codes, and it is a bit troublesome to maintain them.
+
 ## Endpoints
 
 - Genshin: <https://hoyo-codes.seria.moe/codes?game=genshin>
