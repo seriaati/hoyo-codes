@@ -48,7 +48,8 @@ ignore = [
     "ANN401",  # typing.Any used
     "DTZ007",  # Naive datetime constructed
     "E501",    # Line too long
-    "S311",    # Standard pseudo-random generators are not suitable for security/cryptographic purposes
+    "S311",    # Standard pseudo-random generators are not suitable for security/cryptographic purposes\
+    "PLW0717", # Try clause contains too many statements
 ]
 
 [lint.per-file-ignores]
