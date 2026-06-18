@@ -24,8 +24,6 @@ from .utils import get_cookies, get_project_version
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-    from fastapi.security import HTTPAuthorizationCredentials
-
 
 scheduler = AsyncIOScheduler()
 
@@ -43,10 +41,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     )
     scheduler.start()
 
-    yield
-
-    scheduler.shutdown()
-    await db.disconnect()
+    try:
+        yield
+    finally:
+        scheduler.shutdown()
+        await db.disconnect()
 
 
 setup_logging()
