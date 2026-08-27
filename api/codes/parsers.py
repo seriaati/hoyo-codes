@@ -37,7 +37,7 @@ def parse_gamesradar(content: str) -> list[tuple[str, str]]:
         if li.strong is None or not li.strong.text.strip().isupper():
             continue
         code = li.strong.text.strip().split("/")[0].strip()
-        rewards = li.text.strip().split("–")[1].strip()  # noqa: RUF001
+        rewards = li.text.strip().split("–")[1].strip()  # ruff: ignore[ambiguous-unicode-character-string]
         codes.append((code, rewards))
 
     return codes
@@ -105,7 +105,7 @@ def parse_tryhard_guides(content: str) -> list[tuple[str, str]]:
 
     for li in lis:
         code = li.strong.text.strip()
-        rewards = li.text.strip().split("–")[1].strip()  # noqa: RUF001
+        rewards = li.text.strip().split("–")[1].strip()  # ruff: ignore[ambiguous-unicode-character-string]
         codes.append((code, rewards))
 
     return codes
