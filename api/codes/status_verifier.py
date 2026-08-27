@@ -25,7 +25,7 @@ async def same_family_code_exists(code: str, game: Game) -> bool:
     return len(existing_codes) > 0
 
 
-async def verify_code_status(  # noqa: PLR0911
+async def verify_code_status(  # ruff: ignore[too-many-return-statements]
     cookies: str, code: str, game: genshin.Game
 ) -> tuple[CodeStatus, bool]:
     game_uids = await get_game_uids()

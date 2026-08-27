@@ -18,7 +18,7 @@ from .codes.task import check_codes as run_check_codes
 from .codes.task import update_codes as run_update_codes
 from .config import settings
 from .logging import setup_logging
-from .models import CreateCode  # noqa: TC001
+from .models import CreateCode  # ruff: ignore[typing-only-first-party-import]
 from .utils import get_cookies, get_project_version
 
 if TYPE_CHECKING:
@@ -59,8 +59,8 @@ app = FastAPI(
 security = HTTPBearer(auto_error=True)
 
 
-async def validate_token(  # noqa: RUF029
-    credentials: HTTPAuthorizationCredentials = Security(security),  # noqa: B008
+async def validate_token(  # ruff: ignore[unused-async]
+    credentials: HTTPAuthorizationCredentials = Security(security),  # ruff: ignore[function-call-in-default-argument]
 ) -> str:
     """Validate bearer token"""
     if credentials.credentials != settings.api_token:

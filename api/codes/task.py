@@ -72,7 +72,7 @@ async def save_codes(codes: list[tuple[str, str]], game: genshin.Game) -> list[s
     return new_codes
 
 
-async def fetch_codes_task(  # noqa: PLR0912
+async def fetch_codes_task(  # ruff: ignore[too-many-branches]
     session: aiohttp.ClientSession, url: str, source: CodeSource, game: genshin.Game
 ) -> list[tuple[str, str]] | None:
     try:
